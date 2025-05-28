@@ -128,7 +128,7 @@ plot_cistrans<-function(SNP_CHR=c(1:10), #Vector of SNP chromosomes.
   for(C in 1:length(CHRSET)){
     CHR_SNPNAMES<-DATA %>%
       filter(SNP_CHR==CHRSET[C]) %>%
-      select(SNP_ID) %>%
+      dplyr::select(SNP_ID) %>%
       distinct %>%
       arrange
     SNPxPOS[CHR_SNPNAMES$SNP_ID,2]<-seq(from=(C-1)*STDCHRLENGTH+1,
@@ -146,7 +146,7 @@ plot_cistrans<-function(SNP_CHR=c(1:10), #Vector of SNP chromosomes.
   for(C in 1:length(CHRSET)){
     CHR_GENENAMES<-DATA %>%
       filter(GENE_CHR==CHRSET[C]) %>%
-      select(GENE_ID) %>%
+      dplyr::select(GENE_ID) %>%
       distinct 
     GENExPOS[CHR_GENENAMES$GENE_ID,2]<-seq(from=(C-1)*STDCHRLENGTH+1,
                                            to=C*STDCHRLENGTH,
