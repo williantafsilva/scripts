@@ -8,14 +8,15 @@
 intervals_mergeoverlaps<-function(STARTVECTOR,ENDVECTOR,GAP=0){
   
   library(tidyverse)
+  library(data.table)
 
   DATA<-data.frame(Start=STARTVECTOR-GAP/2,
                    End=ENDVECTOR+GAP/2)
   DATA<-DATA[order(DATA$Start,DATA$End),]
   MERGED<-DATA %>% 
     arrange(Start) %>% 
-    group_by(Index=cumsum(cummax(lag(End,default=first(End)))<Start)) %>% 
-    summarise(Start=first(Start),End=max(End)) %>%
+    group_by(Index=cumsum(cummax(lag(End,default=data.table::first(End)))<Start)) %>% 
+    summarise(Start=data.table::first(Start),End=max(End)) %>%
     as.data.frame
   MERGED$Start<-MERGED$Start+GAP/2
   MERGED$End<-MERGED$End-GAP/2
