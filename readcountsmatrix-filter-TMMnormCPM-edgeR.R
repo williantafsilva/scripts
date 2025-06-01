@@ -113,7 +113,7 @@ if(PLOTDATA==TRUE){
 
   HISTDATA<-data.frame(Count=c(log2(as.matrix(COUNTS)+1)))
   p2<-ggplot(HISTDATA,aes(x=Count))+
-    geom_histogram(aes(y=..density..),fill="cyan",color="#e9ecef",alpha=0.9)+
+    geom_histogram(aes(y=after_stat(density)),fill="cyan",color="#e9ecef",alpha=0.9)+
     geom_density()+
     geom_vline(aes(xintercept=mean(Count)),
                color="black",linetype="dashed",linewidth=0.5)+
@@ -148,7 +148,7 @@ if(PLOTDATA==TRUE){
   #p4
 
   p5<-ggplot(BARSDATA,aes(x=RowSum))+
-    geom_histogram(aes(y=..density..),fill="cyan",color="#e9ecef",alpha=0.9)+
+    geom_histogram(aes(y=after_stat(density)),fill="cyan",color="#e9ecef",alpha=0.9)+
     geom_density()+
     geom_vline(aes(xintercept=mean(RowSum)),
                color="black",linetype="dashed",linewidth=0.5)+
@@ -165,6 +165,10 @@ if(PLOTDATA==TRUE){
 
 ######################################
 #Pre-filtering normalization.
+
+#Remove samples with all-zero counts.
+COUNTS<-COUNTS[,colSums(COUNTS)!=0]
+
 #Create DGEList object.
 RAW_DGEOBJECT<-DGEList(counts=COUNTS)
 
@@ -217,7 +221,7 @@ if(nrow(COUNTS)>0 & ncol(COUNTS)>0){ #Only if filtered data is not empty.
 
     HISTDATA<-data.frame(Count=c(log2(as.matrix(COUNTS)+1)))
     p7<-ggplot(HISTDATA,aes(x=Count))+
-      geom_histogram(aes(y=..density..),fill="cyan",color="#e9ecef",alpha=0.9)+
+      geom_histogram(aes(y=after_stat(density)),fill="cyan",color="#e9ecef",alpha=0.9)+
       geom_density()+
       geom_vline(aes(xintercept=mean(Count)),
                  color="black",linetype="dashed",linewidth=0.5)+
@@ -252,7 +256,7 @@ if(nrow(COUNTS)>0 & ncol(COUNTS)>0){ #Only if filtered data is not empty.
     #p9
 
     p10<-ggplot(BARSDATA,aes(x=RowSum))+
-      geom_histogram(aes(y=..density..),fill="cyan",color="#e9ecef",alpha=0.9)+
+      geom_histogram(aes(y=after_stat(density)),fill="cyan",color="#e9ecef",alpha=0.9)+
       geom_density()+
       geom_vline(aes(xintercept=mean(RowSum)),
                  color="black",linetype="dashed",linewidth=0.5)+
