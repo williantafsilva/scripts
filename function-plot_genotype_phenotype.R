@@ -35,9 +35,14 @@ plot_genotype_phenotype<-function(MATRIX_GENOTYPES, #Data frame of genotypes wit
     gsub("T/G","G/T",x)}))
   rownames(DATA_GENOTYPES)<-DATA_GENOTYPES[,1]
   
+  #Get common samples.
+  GENOTYPES_SAMPLES<-colnames(DATA_GENOTYPES)[2:ncol(DATA_GENOTYPES)]
+  PHENOTYPES_SAMPLES<-colnames(DATA_PHENOTYPES)[2:ncol(DATA_PHENOTYPES)]
+  SAMPLES_COMMON<-GENOTYPES_SAMPLES[GENOTYPES_SAMPLES %in% PHENOTYPES_SAMPLES]
+  
   #Match order of columns in genotype and phenotype data.
-  DATA_GENOTYPES<-DATA_GENOTYPES[,c(colnames(DATA_GENOTYPES)[1],colnames(DATA_PHENOTYPES)[2:ncol(DATA_PHENOTYPES)])]
-  DATA_PHENOTYPES<-DATA_PHENOTYPES[,c(colnames(DATA_PHENOTYPES)[1],colnames(DATA_GENOTYPES)[2:ncol(DATA_GENOTYPES)])]
+  DATA_GENOTYPES<-DATA_GENOTYPES[,c(colnames(DATA_GENOTYPES)[1],SAMPLES_COMMON)]
+  DATA_PHENOTYPES<-DATA_PHENOTYPES[,c(colnames(DATA_PHENOTYPES)[1],SAMPLES_COMMON)]
   
   #Count samples per genotype and remove SNPs with low genotype counts (<MINGENFREQ per genotype).
   GENOTYPES_COUNTS<-data.frame(SNP=DATA_GENOTYPES[,1],
