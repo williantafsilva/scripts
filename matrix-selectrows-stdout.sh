@@ -30,3 +30,4 @@ cat ${LIST_ROWS} | while read ROWNAME ; do
   grep --color=never -P "^${ROWNAME}\t" ${INPUTFILE}
 done
 
+echo "------ END ------"
