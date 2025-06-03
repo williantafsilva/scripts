@@ -39,5 +39,3 @@ awk -v OFS='\t' -v "COLVECTOR=${COLVECTOR}" '
     {for (i in cols) printf("%s\t", $cols[i]); 
      print ""
 }' ${INPUTFILE} | sed 's/\t$//g'
-
-echo "------ END ------"
