@@ -49,13 +49,13 @@ if [[ ! -z "${LIST_COLS}" ]] ; then
       BEGIN {split(COLVECTOR, cols, ",")} 
       {for (i in cols) printf("%s\t", $cols[i]); 
        print ""
-  }' ${INPUTFILE1} > ${OUTPUTFILE1}
+  }' ${INPUTFILE1} | sed 's/\t$//g' > ${OUTPUTFILE1}
 
   awk -v OFS='\t' -v "COLVECTOR=${COLVECTOR2}" '
       BEGIN {split(COLVECTOR, cols, ",")} 
       {for (i in cols) printf("%s\t", $cols[i]); 
        print ""
-  }' ${INPUTFILE2} > ${OUTPUTFILE2}
+  }' ${INPUTFILE2} | sed 's/\t$//g' > ${OUTPUTFILE2}
 
 else
 
@@ -72,13 +72,13 @@ else
       BEGIN {split(COLVECTOR, cols, ",")} 
       {for (i in cols) printf("%s\t", $cols[i]); 
        print ""
-  }' ${INPUTFILE1} > ${OUTPUTFILE1}
+  }' ${INPUTFILE1} | sed 's/\t$//g' > ${OUTPUTFILE1}
 
   awk -v OFS='\t' -v "COLVECTOR=${COLVECTOR2}" '
       BEGIN {split(COLVECTOR, cols, ",")} 
       {for (i in cols) printf("%s\t", $cols[i]); 
        print ""
-  }' ${INPUTFILE2} > ${OUTPUTFILE2}
+  }' ${INPUTFILE2} | sed 's/\t$//g' > ${OUTPUTFILE2}
 
 fi
 
