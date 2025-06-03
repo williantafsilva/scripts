@@ -38,6 +38,6 @@ awk -v OFS='\t' -v "COLVECTOR=${COLVECTOR}" '
     BEGIN {split(COLVECTOR, cols, ",")} 
     {for (i in cols) printf("%s\t", $cols[i]); 
      print ""
-}' ${INPUTFILE}
+}' ${INPUTFILE} | sed 's/\t$//g'
 
 echo "------ END ------"
