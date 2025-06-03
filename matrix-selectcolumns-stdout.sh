@@ -34,8 +34,8 @@ while read COLNAME ; do
   fi
 done < ${LIST_COLS}
 
-awk -v OFS='\t' -v "c=${COLVECTOR}" '
-    BEGIN {split(c, cols, ",")} 
+awk -v OFS='\t' -v "COLVECTOR=${COLVECTOR}" '
+    BEGIN {split(COLVECTOR, cols, ",")} 
     {for (i in cols) printf("%s\t", $cols[i]); 
      print ""
 }' ${INPUTFILE}
