@@ -7,14 +7,14 @@
 ##SCRIPT DESCRIPTION:
 
 ##Description:
-##Transpose a matrix.
+##Select rows of a matrix in a specific order.
 
-##Input $1: Delimiter. Options: comma, tab, space, semicolon.
-##Input $2: Matrix file.
-##Output: Print transposed matrix.
+##Input $1: Input tab-separated matrix file.
+##Input $2: Input file with list of row names.
+##Output: Print matrix subset.
 
 ##Usage: 
-##transpose-stdout.sh <DELIMITER> <INPUT FILE>
+##matrix-selectrows-stdout.sh <INPUT MATRIX FILE> <INPUT ROWS LIST FILE>
 
 ############################################################################
 ##ACTIONS:
