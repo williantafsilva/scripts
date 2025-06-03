@@ -19,15 +19,19 @@
 ############################################################################
 ##ACTIONS:
 
+RUNDATE=$(date +"%Y%m%d%H%M%S")
+
 ##Input.
 
 INPUTFILE=$1
 LIST_ROWS=$2
 
+TMPFILE=".tmp-${RUNDATE}.txt"
+
 ##Process.
 
 cat ${LIST_ROWS} | while read ROWNAME ; do
-  grep --color=never -P "^${ROWNAME}\t" ${INPUTFILE}
+  grep --color=never -P "^${ROWNAME}\t" ${INPUTFILE} >> ${TMPFILE}
 done
 
-echo "------ END ------"
+cat ${TMPFILE} & rm -f ${TMPFILE}
