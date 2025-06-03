@@ -7,14 +7,16 @@
 ##SCRIPT DESCRIPTION:
 
 ##Description:
-##Transpose a matrix.
+##Match the rows of two matrices according to the input list of row names or, 
+##if such list is not provided, using rows that are common to both input files.
 
-##Input $1: Delimiter. Options: comma, tab, space, semicolon.
-##Input $2: Matrix file.
-##Output: Print transposed matrix.
+##Input $1: Matrix file 1.
+##Input $2: Matrix file 2.
+##Input $3: File with list of row names.
+##Output: Created output files corresponding to input files.
 
 ##Usage: 
-##transpose-stdout.sh <DELIMITER> <INPUT FILE>
+##matrix-matchrows-stdout.sh <INPUT FILE 1> <INPUT FILE 2> <INPUT LIST FILE>
 
 ############################################################################
 ##ACTIONS:
