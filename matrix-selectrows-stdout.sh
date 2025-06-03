@@ -26,12 +26,9 @@ RUNDATE=$(date +"%Y%m%d%H%M%S")
 INPUTFILE=$1
 LIST_ROWS=$2
 
-TMPFILE=".tmp-${RUNDATE}.txt"
-
 ##Process.
 
 cat ${LIST_ROWS} | while read ROWNAME ; do
-  grep --color=never -P "^${ROWNAME}\t" ${INPUTFILE} >> ${TMPFILE}
+  grep --color=never -P "^${ROWNAME}\t" ${INPUTFILE}
 done
 
-cat ${TMPFILE} & rm -f ${TMPFILE}
