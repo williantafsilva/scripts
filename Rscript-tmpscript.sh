@@ -69,8 +69,8 @@ Job ID (\$SLURM_JOB_ID): ${SLURM_JOB_ID}"
 ############################################################################
 ##LOAD TOOLS:
 
-module load PDC/23.12
-module load R/4.4.1-cpeGNU-23.12
+module load PDC/24.11
+module load R/4.4.2-cpeGNU-24.11
 
 ############################################################################
 ##ACTIONS:
