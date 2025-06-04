@@ -74,7 +74,7 @@ INPUTFILENAME=${INPUTFILE##*/}
 ############################################################################
 ##OUTPUT:
 
-OUTPUTFILEPREFIX=$(echo ${INPUTFILENAME} | sed 's/\.vcf\.gz$//' | sed 's/-job[0-9].*$//')
+OUTPUTFILEPREFIX=$(echo ${INPUTFILENAME} | sed 's/\.vcf$//' | sed 's/\.vcf\.gz$//' | sed 's/-job[0-9].*$//')
 OUTPUTFILE1NAME=$(echo "${OUTPUTFILEPREFIX}.genotypematrixGTformat-job${JOBID}.txt") 
 OUTPUTFILE2NAME=$(echo "${OUTPUTFILEPREFIX}.genotypematrixNUMformat-job${JOBID}.txt") 
 OUTPUTFILE3NAME=$(echo "${OUTPUTFILEPREFIX}.genotypematrixTGTformat-job${JOBID}.txt") 
