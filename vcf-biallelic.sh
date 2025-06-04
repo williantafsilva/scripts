@@ -74,7 +74,7 @@ INPUTFILENAME=${INPUTFILE##*/}
 ############################################################################
 ##OUTPUT:
 
-OUTPUTFILEPREFIX=$(echo ${INPUTFILENAME} | sed 's/\.vcf.*$//' | sed 's/\.bcf.*$//' | sed 's/-job[0-9].*$//')
+OUTPUTFILEPREFIX=$(echo ${INPUTFILENAME} | sed 's/\.vcf$//' | sed 's/\.vcf\.gz$//' | sed 's/\.bcf$//' | sed 's/\.bcf\.gz$//' | sed 's/-job[0-9].*$//')
 OUTPUTFILE1NAME=$(echo "${OUTPUTFILEPREFIX}.biallelic-job${JOBID}.vcf.gz") 
 OUTPUTFILE2NAME=$(echo "${OUTPUTFILE1NAME}.tbi")
 OUTPUTFILE1=$(echo "${OUTPUTLOCATION}/${OUTPUTFILE1NAME}") 
