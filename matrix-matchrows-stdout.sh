@@ -50,7 +50,6 @@ else
 
 fi
 
-echo "------ END ------"
 
 
 
