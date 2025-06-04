@@ -73,7 +73,7 @@ INPUTFILENAME=${INPUTFILE##*/}
 ############################################################################
 ##OUTPUT:
 
-INPUTFILEPREFIX=$(echo ${INPUTFILENAME} | sed 's/\.vcf.*$//' | sed 's/\.bcf.*$//' | sed 's/-job[0-9].*$//')
+INPUTFILEPREFIX=$(echo ${INPUTFILENAME} | sed 's/\.vcf$//' | sed 's/\.vcf\.gz$//' | sed 's/\.bcf$//' | sed 's/\.bcf\.gz$//' | sed 's/-job[0-9].*$//')
 OUTPUTFILE1NAME=$(echo "${INPUTFILEPREFIX}.filtermafmiss-job${JOBID}.vcf.gz") 
 OUTPUTFILE2NAME=$(echo "${OUTPUTFILE1NAME}.tbi") 
 OUTPUTFILE1=$(echo "${OUTPUTLOCATION}/${OUTPUTFILE1NAME}")
