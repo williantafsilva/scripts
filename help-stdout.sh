@@ -123,8 +123,8 @@ cat ${INPUTFILE} | grep -wF -f ${PATTERNFILE}
 ---> Calculate the sum of the numbers in column 3.
 cat ${INPUTFILE} | tail -n+2 | cut -f3 | paste -sd+ | bc
 
----> 
-
+---> Substitute/fill empty lines in column 2 with value from column 1.
+cat ${INPUTFILE} | awk -F'"'"'\t'"'"' '"'"'$1 && !$2{ $2=$1 }1'"'"' | tr '"'"' '"'"' '"'"'\t'"'"'
 
 ---> 
 
