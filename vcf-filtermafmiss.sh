@@ -9,7 +9,7 @@
 ##SCRIPT DESCRIPTION:
 
 ##Description:
-##Filter samples in a VCF file (.vcf.gz) by minor allele frequency and missing data.
+##Filter samples in a VCF file (.vcf.gz) by minor allele frequency and missing data (fraction of missing genotypes).
 
 ##Input $1: Output location.
 ##Input $2: VCF file (.vcf.gz).
