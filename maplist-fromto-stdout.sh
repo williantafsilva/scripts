@@ -10,7 +10,7 @@
 ##Select columns of a matrix in a specific order.
 
 ##Input $1: Target list file.
-##Input $2: Map file with tab-separated lists of old strings and replacement strings (OLD\tNEW).
+##Input $2: Map file with tab-separated lists of value to replace and corresponding replacement value (VALUE\tREPLACEMENT).
 ##Output: Print new list.
 
 ##Usage: 
