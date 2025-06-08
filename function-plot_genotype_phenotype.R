@@ -11,7 +11,8 @@ plot_genotype_phenotype<-function(MATRIX_GENOTYPES, #Data frame of genotypes wit
                                   MINGENFREQ=0, #Minimum genotype frequency (<1) or count (>1).
                                   PLOTTITLE="Genotype x Phenotype",
                                   XLABEL="Genotype",
-                                  YLABEL="Phenotype"){ 
+                                  YLABEL="Phenotype",
+                                  MAXNPLOTS=25){ 
   
   #Load libraries.
   library(ggplot2)
@@ -78,8 +79,8 @@ plot_genotype_phenotype<-function(MATRIX_GENOTYPES, #Data frame of genotypes wit
   SNP_GENE<-SNP_GENE %>%
     filter(!(SNP_ID %in% SNPltMINGENFREQ))
   
-  if(nrow(SNP_GENE)>25){
-    SNP_GENE<-SNP_GENE[1:min(25,nrow(SNP_GENE)),]
+  if(nrow(SNP_GENE)>MAXNPLOTS){
+    SNP_GENE<-SNP_GENE[1:min(MAXNPLOTS,nrow(SNP_GENE)),]
   }
   
   #Create data frame with genotypes and phenotypes.
