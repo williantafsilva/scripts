@@ -96,9 +96,9 @@ plot_genotype_phenotype<-function(MATRIX_GENOTYPES, #Data frame of genotypes wit
                     GENOTYPE=unname(unlist(DATA_GENOTYPES[
                       DATA_GENOTYPES[,1]==SNP_GENE$SNP_ID[i],
                       2:ncol(DATA_GENOTYPES)])),
-                    PHENOTYPE=unname(unlist(DATA_PHENOTYPES[
+                    PHENOTYPE=as.numeric(unname(unlist(DATA_PHENOTYPES[
                       DATA_PHENOTYPES[,1]==SNP_GENE$GENE_ID[i],
-                      2:ncol(DATA_PHENOTYPES)])))
+                      2:ncol(DATA_PHENOTYPES)]))))
     DATA_GENOTYPE_PHENOTYPE<-rbind(DATA_GENOTYPE_PHENOTYPE,TMP)
   }
   DATA_GENOTYPE_PHENOTYPE<-DATA_GENOTYPE_PHENOTYPE[!is.na(DATA_GENOTYPE_PHENOTYPE$SNP),]
