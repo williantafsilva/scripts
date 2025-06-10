@@ -100,7 +100,8 @@ TMPFILEPREFIX=$(echo "${OUTPUTDIR}/${INPUTFILEPREFIX}.gemma_plinkformat-job${JOB
 ##ACTIONS:
 
 ##Filter VCF file and convert it to PLINK format.
-plink --vcf ${INPUTVCFFILE} --maf 0.05 --geno 0.05 --allow-extra-chr --chr-set 39 --make-bed --out ${TMPFILEPREFIX}
+#plink --vcf ${INPUTVCFFILE} --maf 0.05 --geno 0.05 --allow-extra-chr --chr-set 39 --make-bed --out ${TMPFILEPREFIX}
+plink --vcf ${INPUTVCFFILE} --allow-extra-chr --chr-set 39 --make-bed --out ${TMPFILEPREFIX}
 
 ##Run GEMMA GWAS.
 echo ${PHENOTYPEINDICES} | tr ',' '\n' | while read PHENOTYPEi ; do
