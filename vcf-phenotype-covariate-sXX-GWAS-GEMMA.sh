@@ -148,7 +148,7 @@ Input file: ${INPUTCOVARIATEFILE}
 Input file: ${INPUTRELATEDNESSFILE}
 Input phenotype indices: ${PHENOTYPEINDICES}
 Output directory: ${OUTPUTDIR}
-$(readlink -f $(find ${OUTPUTDIR}/*-job{JOBID}* -maxdepth 1) | sed 's/^/Output file: /g')
+$(readlink -f $(find ${OUTPUTDIR}/*-job${JOBID}* -maxdepth 1) | sed 's/^/Output file: /g')
 " >> $(echo "${OUTPUTLOCATION}/README.txt") 
 
 	##COPY OF SCRIPT:
