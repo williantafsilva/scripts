@@ -3,10 +3,11 @@
 ############################################################################
 #Author: Willian T.A.F. Silva (willian.silva@evobiolab.com).
 ############################################################################
-
+source("https://github.com/williantafsilva/scripts/raw/refs/heads/main/function-filter_genotypefreq.R")
 filter_genotypefreq<-function(MATRIX_GENOTYPES, #Data frame of genotypes with SNPs per row (1st column is SNP ID) and samples per column.
                               MINGENFREQ=0, #Minimum genotype frequency (<1) or count (>1).
-                              OUTPUTFILTEREDMATRIX=FALSE){ #If true, the function will output a list containing, in addition to the SNP IDs, the filtered genotype matrix.
+                              OUTPUTFILTEREDMATRIX=FALSE, #If true, the function will output a list containing, in addition to the SNP IDs of low frequency genotypes, the filtered genotype matrix.
+                              OUTPUTLOWFREQGENOTYPES=FALSE){ #If true, the function will output a list containing, in addition to the SNP IDs of low frequency genotypes, the genotype matrix of SNPs with low frequency genotypes.
   
   #Load libraries.
   library(ggplot2)
@@ -48,14 +49,20 @@ filter_genotypefreq<-function(MATRIX_GENOTYPES, #Data frame of genotypes with SN
     SNPltMINGENFREQ<-GENOTYPES_COUNTS$SNP[which(rowSums(GENOTYPES_COUNTS[,2:11]>0 & GENOTYPES_COUNTS[,2:11]<MINGENFREQ)>0)]
   }
   
-  OUTPUT<-SNPltMINGENFREQ
+  OUTPUT<-list(SNPltMINGENFREQ=SNPltMINGENFREQ)
   
   if(OUTPUTFILTEREDMATRIX){
     #Filter out SNPs that have at least one genotype with frequency <MINGENFREQ.
-    DATA_GENOTYPES<-DATA_GENOTYPES %>%
+    DATA_FILTEREDGENOTYPES<-DATA_GENOTYPES %>%
       filter(!(DATA_GENOTYPES[,1] %in% SNPltMINGENFREQ))
-    OUTPUT<-list(SNPltMINGENFREQ=SNPltMINGENFREQ,
-                 FILTEREDMATRIX=DATA_GENOTYPES)
+    OUTPUT<-c(OUTPUT,list(MATRIXFILTERED=DATA_FILTEREDGENOTYPES))
+  }
+  
+  if(OUTPUTLOWFREQGENOTYPES){
+    #Filter out SNPs that have at least one genotype with frequency <MINGENFREQ.
+    DATA_GENOTYPESLOWFREQ<-DATA_GENOTYPES %>%
+      filter(DATA_GENOTYPES[,1] %in% SNPltMINGENFREQ)
+    OUTPUT<-c(OUTPUT,list(MATRIXLOWFREQ=DATA_GENOTYPESLOWFREQ))
   }
   
   return(OUTPUT)
