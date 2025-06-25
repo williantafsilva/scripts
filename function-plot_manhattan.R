@@ -49,7 +49,7 @@ plot_manhattan<-function(
 
   #Define target chromosome set.
   if(missing(CHRSET)){
-    CHRSET<-mixedsort(unique(DATA$CHR))
+    CHRSET<-mixedsort(unique(as.character(DATA$CHR)))
   }
   DATA<-DATA[DATA$CHR %in% CHRSET,]
   
