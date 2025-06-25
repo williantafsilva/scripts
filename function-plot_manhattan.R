@@ -43,17 +43,16 @@ plot_manhattan<-function(
                                                      fill="white"))
   
   #Format data.
-  DATA<-data.frame(CHR=CHRVECTOR,
+  DATA<-data.frame(CHR=as.character(CHRVECTOR),
                    POS=POSVECTOR,
                    VALUE=VALUES)
 
   #Define target chromosome set.
   if(missing(CHRSET)){
-    CHRSET<-mixedsort(unique(DATA$CHR))
+    CHRSET<-as.character(mixedsort(unique(DATA$CHR)))
   }else{
-    CHRSET<-mixedsort(unique(CHRSET))
+    CHRSET<-as.character(mixedsort(unique(CHRSET)))
   }
-
   DATA<-DATA[DATA$CHR %in% CHRSET,]
   
   #Calculate average value per chromosome.
