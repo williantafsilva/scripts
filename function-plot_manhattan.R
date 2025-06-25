@@ -49,9 +49,9 @@ plot_manhattan<-function(
 
   #Define target chromosome set.
   if(missing(CHRSET)){
-    CHRSET<-mixedsort(unique(as.character(DATA$CHR)))
+    CHRSET<-mixedsort(unique(DATA$CHR))
   }
-  DATA<-DATA[DATA$CHR %in% CHRSET,]
+  DATA<-DATA[DATA$CHR %in% as.character(CHRSET),]
   
   #Calculate average value per chromosome.
   DATA<-DATA %>%
