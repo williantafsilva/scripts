@@ -112,25 +112,29 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
 }
 
 # DF<-data.frame(Chromosome=rep(1,20),
-#                Position=c(1,10,1000,2000,10000,100000,200000,500000,700000,900000,
+#                Position=c(c(1,10,1000,2000,10000,100000,200000,500000,700000,900000,
 #                           1.8e+6,3.3e+6,3.4e+6,3.6e+6,3.8e+6,4.1e+6,4.3e+6,4.35e+6,4.7e+6,6.1e+6),
-#                Pvalue=c(5e-7,8e-3,1e-4,5e-7,9.9e-7,3e-8,8e-8,1e-8,9e-7,5e-7,1e-5,5.5e-6,1e-6,1e-5,1e-7,9e-7,5e-7,6e-6,9.8e-6,5e-7)) %>%
+#                           c(1,10,1000,2000,10000,100000,200000,500000,700000,900000,
+#                             1.8e+6,3.3e+6,3.4e+6,3.6e+6,3.8e+6,4.1e+6,4.3e+6,4.35e+6,4.7e+6,6.1e+6)+5),
+#                Pvalue=c(c(5e-7,8e-3,1e-4,5e-7,9.9e-7,3e-8,8e-8,1e-8,9e-7,5e-7,1e-5,5.5e-6,1e-6,1e-5,1e-7,9e-7,5e-7,6e-6,9.8e-6,5e-7),
+#                         c(runif(20,min=0.011,max=0.5)))) %>%
 #                  arrange(Chromosome,Position)
 # 
 # p<-ggplot(DF)+
 #   geom_point(aes(x=Position,y=-log10(Pvalue)),color="blue")+
-#   geom_line(aes(x=Position,y=-log10(Pvalue)),linetype="dashed")+
+#   #geom_line(aes(x=Position,y=-log10(Pvalue)),linetype="dashed")+
+#   geom_hline(yintercept=-log10(0.01),linetype="dashed")+
 #   labs(x="Position",y=expression("-Log"[10]~"Pvalue"))+
 #   theme_bw()
 # p
 # 
-# QTLREGIONS<-peak_range(CHRVECTOR=DF$Chromosome, #Vector of chromosomes.
-#                        POSVECTOR=DF$Position, #Vector of chromosomal positions.
-#                        PVALUEVECTOR=DF$Pvalue, #Vector of p-values.
-#                        SIGTHRESHOLD=0.01, #P-value significance threshold.
-#                        SEARCHDISTANCE=1e+6, #Maximum distance from last selected adjacent position.
-#                        LOCALPEAKTHRESHOLD=0.01)
-# QTLREGIONS
+# REGIONS<-peak_range(CHRVECTOR=DF$Chromosome, #Vector of chromosomes.
+#                     POSVECTOR=DF$Position, #Vector of chromosomal positions.
+#                     PVALUEVECTOR=DF$Pvalue, #Vector of p-values.
+#                     SIGTHRESHOLD=0.01, #P-value significance threshold.
+#                     SEARCHDISTANCE=1e+6, #Maximum distance from last selected adjacent position.
+#                     LOCALPEAKTHRESHOLD=0.01) #Relative threshold of local peak (0.01 represents 2 orders of magnitude).
+# REGIONS
 
 
 
