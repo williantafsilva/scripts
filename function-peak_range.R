@@ -25,7 +25,10 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
   #Base filter: Filter out non-significant points. 
   #This means that non-significant loci can exist within a significant QTL region.
   #The region will be based on the drop in significance among significant loci and their distance,
-  #ignoring non-significant loci.
+  #ignoring non-significant loci. This has several advantages: 1. Lower memory requirements and considerably faster 
+  #(no need to import complete data set because only significant points are used); 2. This allows for
+  #the presence of gaps with non-significant points between two significant points located near each other,
+  #without assigning them different regions.
   INPUTDATA<-INPUTDATA %>% filter(Value<=SIGTHRESHOLD) 
   
   #Create output data frame.
@@ -108,47 +111,45 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
   
 }
 
-DF<-data.frame(Chromosome=sample(1:3,100,replace=TRUE),
-               Position=sample(seq(from=1,to=1e+3,length.out=1000),100,replace=FALSE),
-               Pvalue=c(sample(seq(from=1e-12,to=1e-8,length.out=100),50,replace=FALSE),
-                        sample(seq(from=0.01,to=0.1,length.out=100),50,replace=FALSE))) %>%
-  arrange(Chromosome,Position)
-
-plot_manhattan(CHRVECTOR=DF$Chromosome, #Vector of chromosomes.
-               POSVECTOR=DF$Position, #Vector of positions.
-               #CHRSET=c(1:39,"Z","W"), #Set of chromosomes to show in the plots.
-               VALUES=DF$Pvalue, #Vector of y values (p-values, likelihood values, iHS values, etc).
-               #REGIONS, #Data frame (Chromosome,RegionStart,RegionEnd) with chromosomal regions to be shaded in per chromosome plots.
-               ABOVETHRESHOLD=Inf, #Threshold above which points are plotted with alpha=1. If both ABOVETHRESHOLD and BELOWTHRESHOLD are set to Inf and -Inf, all points are plotted with alpha=1.
-               BELOWTHRESHOLD=-Inf, #Threshold below which points are plotted with alpha=1.
-               COLORS=c("deepskyblue","darkblue"), #Alternating colors for adjacent chromosomes.
-               STDCHRLENGTH=FALSE, #Use standardized chromosome length?
-               PLOTPERCHR=TRUE, #Plot per chromosome? (This options never uses standardized chromosome length).
-               XLABEL="Chromosome", #X-axis label.
-               YLABEL="P-value", #Y-axis label.
-               PLOTTITLE="Manhattan plot")
-
-QTLREGIONS<-peak_range(CHRVECTOR=DF$Chromosome, #Vector of chromosomes.
-                       POSVECTOR=DF$Position, #Vector of chromosomal positions.
-                       PVALUEVECTOR=DF$Pvalue, #Vector of p-values.
-                       SIGTHRESHOLD=0.01, #P-value significance threshold.
-                       SEARCHDISTANCE=1e+6, #Maximum distance from last selected adjacent position.
-                       LOCALPEAKTHRESHOLD=0.01)
-QTLREGIONS
-max(QTLREGIONS$RegionLength)
-
-plot_manhattan(CHRVECTOR=DF$Chromosome, #Vector of chromosomes.
-               POSVECTOR=DF$Position, #Vector of positions.
-               #CHRSET=c(1:39,"Z","W"), #Set of chromosomes to show in the plots.
-               VALUES=-log10(DF$Pvalue), #Vector of y values (p-values, likelihood values, iHS values, etc).
-               REGIONS=QTLREGIONS[QTLREGIONS$RegionLength!=0,], #Data frame (Chromosome,RegionStart,RegionEnd) with chromosomal regions to be shaded in per chromosome plots.
-               ABOVETHRESHOLD=Inf, #Threshold above which points are plotted with alpha=1. If both ABOVETHRESHOLD and BELOWTHRESHOLD are set to Inf and -Inf, all points are plotted with alpha=1.
-               BELOWTHRESHOLD=-Inf, #Threshold below which points are plotted with alpha=1.
-               COLORS=c("deepskyblue","darkblue"), #Alternating colors for adjacent chromosomes.
-               STDCHRLENGTH=FALSE, #Use standardized chromosome length?
-               PLOTPERCHR=TRUE, #Plot per chromosome? (This options never uses standardized chromosome length).
-               XLABEL="Chromosome", #X-axis label.
-               YLABEL="P-value", #Y-axis label.
-               PLOTTITLE="Manhattan plot")
-
-
+# DF<-data.frame(Chromosome=sample(1:3,100,replace=TRUE),
+#                Position=sample(seq(from=1,to=1e+8,length.out=1000),100,replace=FALSE),
+#                Pvalue=c(sample(seq(from=1e-12,to=1e-8,length.out=100),50,replace=FALSE),
+#                         sample(seq(from=0.01,to=0.1,length.out=100),50,replace=FALSE))) %>%
+#   arrange(Chromosome,Position)
+# 
+# plot_manhattan(CHRVECTOR=DF$Chromosome, #Vector of chromosomes.
+#                POSVECTOR=DF$Position, #Vector of positions.
+#                #CHRSET=c(1:39,"Z","W"), #Set of chromosomes to show in the plots.
+#                VALUES=DF$Pvalue, #Vector of y values (p-values, likelihood values, iHS values, etc).
+#                #REGIONS, #Data frame (Chromosome,RegionStart,RegionEnd) with chromosomal regions to be shaded in per chromosome plots.
+#                ABOVETHRESHOLD=Inf, #Threshold above which points are plotted with alpha=1. If both ABOVETHRESHOLD and BELOWTHRESHOLD are set to Inf and -Inf, all points are plotted with alpha=1.
+#                BELOWTHRESHOLD=-Inf, #Threshold below which points are plotted with alpha=1.
+#                COLORS=c("deepskyblue","darkblue"), #Alternating colors for adjacent chromosomes.
+#                STDCHRLENGTH=FALSE, #Use standardized chromosome length?
+#                PLOTPERCHR=TRUE, #Plot per chromosome? (This options never uses standardized chromosome length).
+#                XLABEL="Chromosome", #X-axis label.
+#                YLABEL="P-value", #Y-axis label.
+#                PLOTTITLE="Manhattan plot")
+# 
+# QTLREGIONS<-peak_range(CHRVECTOR=DF$Chromosome, #Vector of chromosomes.
+#                        POSVECTOR=DF$Position, #Vector of chromosomal positions.
+#                        PVALUEVECTOR=DF$Pvalue, #Vector of p-values.
+#                        SIGTHRESHOLD=0.01, #P-value significance threshold.
+#                        SEARCHDISTANCE=1e+6, #Maximum distance from last selected adjacent position.
+#                        LOCALPEAKTHRESHOLD=0.01)
+# QTLREGIONS
+# max(QTLREGIONS$RegionLength)
+# 
+# plot_manhattan(CHRVECTOR=DF$Chromosome, #Vector of chromosomes.
+#                POSVECTOR=DF$Position, #Vector of positions.
+#                #CHRSET=c(1:39,"Z","W"), #Set of chromosomes to show in the plots.
+#                VALUES=-log10(DF$Pvalue), #Vector of y values (p-values, likelihood values, iHS values, etc).
+#                REGIONS=QTLREGIONS[QTLREGIONS$RegionLength!=0,], #Data frame (Chromosome,RegionStart,RegionEnd) with chromosomal regions to be shaded in per chromosome plots.
+#                ABOVETHRESHOLD=Inf, #Threshold above which points are plotted with alpha=1. If both ABOVETHRESHOLD and BELOWTHRESHOLD are set to Inf and -Inf, all points are plotted with alpha=1.
+#                BELOWTHRESHOLD=-Inf, #Threshold below which points are plotted with alpha=1.
+#                COLORS=c("deepskyblue","darkblue"), #Alternating colors for adjacent chromosomes.
+#                STDCHRLENGTH=FALSE, #Use standardized chromosome length?
+#                PLOTPERCHR=TRUE, #Plot per chromosome? (This options never uses standardized chromosome length).
+#                XLABEL="Chromosome", #X-axis label.
+#                YLABEL="P-value", #Y-axis label.
+#                PLOTTITLE="Manhattan plot")
