@@ -9,7 +9,7 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
                      PVALUEVECTOR, #Vector of p-values.
                      SIGTHRESHOLD=0.01, #P-value significance threshold.
                      SEARCHDISTANCE=1e+6, #Maximum distance between adjacent positions within a region.
-                     LOCALPEAKTHRESHOLD=0.01){ #Threshold of local peak (orders of magnitude)
+                     LOCALPEAKTHRESHOLD=0.01){ #Relative threshold of local peak (0.01 represents 2 orders of magnitude).
   
   library(tidyverse)
   library(data.table)
