@@ -38,6 +38,11 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
   
   for(C in unique(CHRVECTOR)){
     
+    #Create output data frame.
+    OUTPUTC<-data.frame(Chromosome=NA,
+                        RegionStart=NA,
+                        RegionEnd=NA)
+    
     REMAININGDATA<-data.frame(Position=INPUTDATA$Position[INPUTDATA$Chromosome==C],
                               Value=INPUTDATA$Value[INPUTDATA$Chromosome==C]) %>% arrange(Position)
     
@@ -90,7 +95,7 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
         TMP<-data.frame(Chromosome=C,
                         RegionStart=min(RANGEPOSITIONS),
                         RegionEnd=max(RANGEPOSITIONS))
-        OUTPUT<-rbind(OUTPUT,TMP)
+        OUTPUTC<-rbind(OUTPUTC,TMP)
       }
       
       #Remove obtained range from the data.
@@ -102,9 +107,24 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
       
     }
     
+    OUTPUTC<-OUTPUTC[!is.na(OUTPUTC$Chromosome),]
+    
+    #Merge overlapping/adjacent ranges within chromosome C.
+    OUTPUTC<-OUTPUTC[order(OUTPUTC$RegionStart,OUTPUTC$RegionEnd),c("RegionStart","RegionEnd")]
+    OUTPUTC_MERGED<-OUTPUTC %>% 
+      arrange(RegionStart) %>% 
+      group_by(Index=cumsum(cummax(lag(RegionEnd,default=data.table::first(RegionEnd)))<RegionStart)) %>% 
+      summarise(RegionStart=data.table::first(RegionStart),RegionEnd=max(RegionEnd)) %>%
+      as.data.frame
+    OUTPUTC_MERGED<-OUTPUTC_MERGED[,c("RegionStart","RegionEnd")] %>%
+      mutate(Chromosome=C)
+    
+    #Save ranges.
+    OUTPUT<-rbind(OUTPUT,OUTPUTC_MERGED)
+    
   }
   
-  OUTPUT<-OUTPUT[!is.na(OUTPUT$RegionStart),]
+  OUTPUT<-OUTPUT[!is.na(OUTPUT$Chromosome),]
   OUTPUT$RegionLength<-OUTPUT$RegionEnd-OUTPUT$RegionStart
   
   return(OUTPUT)
@@ -115,9 +135,11 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
 #                Position=c(c(1,10,1000,2000,10000,100000,200000,500000,700000,900000,
 #                           1.8e+6,3.3e+6,3.4e+6,3.6e+6,3.8e+6,4.1e+6,4.3e+6,4.35e+6,4.7e+6,6.1e+6),
 #                           c(1,10,1000,2000,10000,100000,200000,500000,700000,900000,
-#                             1.8e+6,3.3e+6,3.4e+6,3.6e+6,3.8e+6,4.1e+6,4.3e+6,4.35e+6,4.7e+6,6.1e+6)+5),
+#                             1.8e+6,3.3e+6,3.4e+6,3.6e+6,3.8e+6,4.1e+6,4.3e+6,4.35e+6,4.7e+6,6.1e+6)+5
+#                           ),
 #                Pvalue=c(c(5e-7,8e-3,1e-4,5e-7,9.9e-7,3e-8,8e-8,1e-8,9e-7,5e-7,1e-5,5.5e-6,1e-6,1e-5,1e-7,9e-7,5e-7,6e-6,9.8e-6,5e-7),
-#                         c(runif(20,min=0.011,max=0.5)))) %>%
+#                         c(runif(20,min=0.011,max=0.5))
+#                         )) %>%
 #                  arrange(Chromosome,Position)
 # 
 # p<-ggplot(DF)+
