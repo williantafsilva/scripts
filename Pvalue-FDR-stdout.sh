@@ -36,5 +36,5 @@ PVALUES<-as.numeric(DATA[,${PVALCOL}])
 FDRPVALUES<-p.adjust(PVALUES,method='fdr')
 
 #Print FDR p-values.
-print(PVALUES)
-"
+print(FDRPVALUES)
+" | tr ' ' '\n'
