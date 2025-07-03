@@ -30,7 +30,7 @@ Rscript --vanilla -e "
 DATA<-read.table('${INPUTFILE}',header=TRUE,sep='\t',stringsAsFactors=FALSE)
 
 #Extract p-values.
-PVALUES<-as.numeric(DATA[,'${PVALCOL}'])
+PVALUES<-as.numeric(DATA[,${PVALCOL}])
 
 #Perform FDR correction.
 FDRPVALUES<-p.adjust(PVALUES,method='fdr')
