@@ -8,6 +8,7 @@
 
 ##Description:
 ##Calculate FDR p-values.
+##Requirements: R module.
 
 #Input $1: Tab-separated file with header containing a column with p-values.
 #Input $2: Index of column that contains p-values.
@@ -18,9 +19,6 @@
 
 ############################################################################
 ##ACTIONS:
-
-module load PDC/24.11
-module load R/4.4.2-cpeGNU-24.11
 
 ##Input.
 INPUTFILE=$(readlink -f $1)
