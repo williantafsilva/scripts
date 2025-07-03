@@ -27,10 +27,10 @@ PVALCOL=$2
 #Run R to perform FDR correction.
 Rscript --vanilla -e "
 #Read input data.
-DATA<-read.table(${INPUTFILE},header=TRUE,sep='\t',stringsAsFactors=FALSE)
+DATA<-read.table('${INPUTFILE}',header=TRUE,sep='\t',stringsAsFactors=FALSE)
 
 #Extract p-values.
-PVALUES<-as.numeric(DATA[,${PVALCOL}])
+PVALUES<-as.numeric(DATA[,'${PVALCOL}'])
 
 #Perform FDR correction.
 FDRPVALUES<-p.adjust(PVALUES,method='fdr')
