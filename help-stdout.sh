@@ -126,14 +126,14 @@ cat ${INPUTFILE} | tail -n+2 | cut -f3 | paste -sd+ | bc
 ---> Substitute/fill empty lines in column 2 with value from column 1.
 cat ${INPUTFILE} | awk -F'"'"'\t'"'"' '"'"'$1 && !$2{ $2=$1 }1'"'"' | tr '"'"' '"'"' '"'"'\t'"'"'
 
----> 
+---> Print all columns with AWK:
+cat ${INPUTFILE} | awk '"'"'{print $0}'"'"'
 
+---> Print all but first column using AWK.
+cat ${INPUTFILE} | awk '"'"'{$1=""; print $0}'"'"'
 
----> 
-
-
----> 
-
+---> Print all but the first two columns using AWK.
+cat ${INPUTFILE} | awk '"'"'{$1=$2=""; print $0}'"'"'
 
 ---> 
 
