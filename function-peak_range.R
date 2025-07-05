@@ -7,9 +7,22 @@
 peak_range<-function(CHRVECTOR, #Vector of chromosomes.
                      POSVECTOR, #Vector of chromosomal positions.
                      PVALUEVECTOR, #Vector of p-values.
+                     METHOD="DistanceFromPeak", #Method used to obtain ranges: DistanceFromPeak, AdjacentPoints.
                      SIGTHRESHOLD=0.01, #P-value significance threshold.
-                     SEARCHDISTANCE=1e+6, #Maximum distance between adjacent positions within a region.
-                     LOCALPEAKTHRESHOLD=0.01){ #Relative threshold of local peak (0.01 represents 2 orders of magnitude).
+                     SEARCHDISTANCE=3e+6, #Maximum distance from local peak.
+                     LOCALPEAKTHRESHOLD=0.01, #Relative threshold of local peak (0.01 represents 2 orders of magnitude).
+                     MINGAPSIZE=0){ #Minimum size of gaps between ranges. Adjacent ranges with a gap smaller than or equal to MINGAPSIZE will be merged together.
+  
+  #1. Find peak position (lowest p-value).
+  #2. Set local peak p-value threshold (e.g., 0.01 = two orders of magnitude below local peak) to limit local peak height.
+  #3. DistanceFromPeak: Find the farthest significant points (below local peak p-value threshold) within the defined 
+  #distance from local peak. This method limits the extension of the region, without limiting the gap between adjacent significant points..
+  #3. AdjacentPoints: Find the farthest significant points (below local peak p-value threshold) upstream/downstream 
+  #the last picked point upstream/downstream the local peak. This method limits the gap between adjacent significant points, not 
+  #the extension of the total regions.
+  #4. Save peak and range.
+  #5. Remove range from data.
+  #6. Go back to step 1.
   
   library(tidyverse)
   library(data.table)
@@ -20,143 +33,249 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
   
   INPUTDATA<-data.frame(Chromosome=CHRVECTOR,
                         Position=POSVECTOR,
-                        Value=PVALUEVECTOR) 
-  
-  #Base filter: Filter out non-significant points. 
-  #This means that non-significant loci can exist within a significant QTL region.
-  #The region will be based on the drop in significance among significant loci and their distance,
-  #ignoring non-significant loci. This has several advantages: 1. Lower memory requirements and considerably faster 
-  #(no need to import complete data set because only significant points are used); 2. This allows for
-  #the presence of gaps with non-significant points between two significant points located near each other,
-  #without assigning them different regions.
-  INPUTDATA<-INPUTDATA %>% filter(Value<=SIGTHRESHOLD) 
+                        Pvalue=PVALUEVECTOR) 
   
   #Create output data frame.
   OUTPUT<-data.frame(Chromosome=NA,
+                     PeakPosition=NA,
+                     PeakPvalue=NA,
                      RegionStart=NA,
-                     RegionEnd=NA)
+                     RegionEnd=NA,
+                     NPeaks=NA)
   
-  for(C in unique(CHRVECTOR)){
+  for(C in unique(INPUTDATA$Chromosome)){
+    
+    #Get data for chromosome C.
+    DATA_CHRC<-INPUTDATA %>% 
+      filter(Chromosome==C) %>% 
+      arrange(Position)
     
     #Create output data frame.
-    OUTPUTC<-data.frame(Chromosome=NA,
-                        RegionStart=NA,
-                        RegionEnd=NA)
-    
-    REMAININGDATA<-data.frame(Position=INPUTDATA$Position[INPUTDATA$Chromosome==C],
-                              Value=INPUTDATA$Value[INPUTDATA$Chromosome==C]) %>% arrange(Position)
+    OUTPUT_CHRC<-data.frame(Chromosome=NA,
+                            PeakPosition=NA,
+                            PeakPvalue=NA,
+                            RegionStart=NA,
+                            RegionEnd=NA)
     
     #Continue searching while there are significant positions that haven't been assigned to a range.
-    while(nrow(REMAININGDATA)>0){ 
-      
+    while(nrow(DATA_CHRC)>0){ 
       #Find peak value.
-      PEAKVALUE<-min(REMAININGDATA$Value) 
-      
+      PEAKVALUE<-min(DATA_CHRC$Pvalue) 
       #No meaningful peaks left.
       if(PEAKVALUE>SIGTHRESHOLD){break} 
-      
       #Local peak dynamic threshold.
       X<-PEAKVALUE/LOCALPEAKTHRESHOLD 
-      
+      if(X>SIGTHRESHOLD){X<-SIGTHRESHOLD}
       #Find all peak indices.
-      PEAKINDICES<-which(REMAININGDATA$Value==PEAKVALUE) 
+      PEAKINDICES<-which(DATA_CHRC$Pvalue==PEAKVALUE) 
       
-      #Find ranges around each peak.
-      RANGES_INDICES<-lapply(PEAKINDICES,function(idx){
-        PEAKPOSITION<-REMAININGDATA$Position[idx]
-        #Search upstream peak.
-        LEFT<-idx
-        while(LEFT>1 && REMAININGDATA$Value[LEFT-1]<X && REMAININGDATA$Position[LEFT-1]>=(REMAININGDATA$Position[LEFT]-SEARCHDISTANCE)){
-          LEFT<-LEFT-1
-        }
-        #Search downstream peak.
-        RIGHT<-idx
-        while(RIGHT<nrow(REMAININGDATA) && REMAININGDATA$Value[RIGHT+1]<X && REMAININGDATA$Position[RIGHT+1]<=(REMAININGDATA$Position[RIGHT]+SEARCHDISTANCE)){
-          RIGHT<-RIGHT+1
-        }
-        return(c(LEFT,RIGHT))
-      })
-      RANGES_INDICES<-do.call(rbind,RANGES_INDICES)
-      RANGES_INDICES<-as.data.frame(RANGES_INDICES)
-      colnames(RANGES_INDICES)<-c("Start","End")
+      if(METHOD=="DistanceFromPeak"){
+        #Find ranges around each peak.
+        RANGES_CHRC<-lapply(PEAKINDICES,function(idx){
+          PEAKPOSITION<-DATA_CHRC$Position[idx]
+          PEAKPVALUE<-DATA_CHRC$Pvalue[idx]
+          DATASUBSET<-DATA_CHRC %>%
+            filter(Position>=(PEAKPOSITION-SEARCHDISTANCE),
+                   Position<=(PEAKPOSITION+SEARCHDISTANCE))
+          #Search upstream peak.
+          LEFTLIMIT<-min(DATASUBSET$Position[DATASUBSET$Pvalue<=X])
+          #Search downstream peak.
+          RIGHTLIMIT<-max(DATASUBSET$Position[DATASUBSET$Pvalue<=X])
+          return(c(PEAKPOSITION,PEAKPVALUE,LEFTLIMIT,RIGHTLIMIT))
+        })
+        RANGES_CHRC<-do.call(rbind,RANGES_CHRC)
+        RANGES_CHRC<-as.data.frame(RANGES_CHRC) %>%
+          mutate(Chromosome=C)
+        colnames(RANGES_CHRC)<-c("PeakPosition","PeakPvalue","RegionStart","RegionEnd","Chromosome")
+      }
       
-      #Merge overlapping/adjacent ranges.
-      RANGES_INDICES<-RANGES_INDICES[order(RANGES_INDICES$Start,RANGES_INDICES$End),]
-      MERGEDRANGES_INDICES<-RANGES_INDICES %>% 
-        arrange(Start) %>% 
-        group_by(Index=cumsum(cummax(lag(End,default=data.table::first(End)))<Start)) %>% 
-        summarise(Start=data.table::first(Start),End=max(End)) %>%
-        as.data.frame
-      MERGEDRANGES_INDICES<-MERGEDRANGES_INDICES[,c("Start","End")]
+      if(METHOD=="AdjacentPoints"){
+        #Find ranges around each peak.
+        RANGES_CHRC<-lapply(PEAKINDICES,function(idx){
+          PEAKPOSITION<-DATA_CHRC$Position[idx]
+          PEAKPVALUE<-DATA_CHRC$Pvalue[idx]
+          DATASUBSET<-DATA_CHRC %>%
+            filter(Position>=(PEAKPOSITION-SEARCHDISTANCE),
+                   Position<=(PEAKPOSITION+SEARCHDISTANCE))
+          #Search upstream peak.
+          CONTINUE<-TRUE
+          LEFTLIMIT<-PEAKPOSITION
+          while(CONTINUE==TRUE){
+            DATASUBSET<-DATA_CHRC %>%
+              filter(Position>=(LEFTLIMIT-SEARCHDISTANCE),
+                     Position<LEFTLIMIT)
+            if(nrow(DATASUBSET)>0){
+              if(sum(DATASUBSET$Pvalue<=X)>0){
+                LEFTLIMIT<-min(DATASUBSET$Position[DATASUBSET$Pvalue<=X])
+              }else{
+                CONTINUE<-FALSE
+              }
+            }else{
+              CONTINUE<-FALSE
+            }
+          }
+          #Search downstream peak.
+          CONTINUE<-TRUE
+          RIGHTLIMIT<-PEAKPOSITION
+          while(CONTINUE==TRUE){
+            DATASUBSET<-DATA_CHRC %>%
+              filter(Position>RIGHTLIMIT,
+                     Position<=(RIGHTLIMIT+SEARCHDISTANCE))
+            if(nrow(DATASUBSET)>0){
+              if(sum(DATASUBSET$Pvalue<=X)>0){
+                RIGHTLIMIT<-max(DATASUBSET$Position[DATASUBSET$Pvalue<=X])
+              }else{
+                CONTINUE<-FALSE
+              }
+            }else{
+              CONTINUE<-FALSE
+            }
+          }
+          return(c(PEAKPOSITION,PEAKPVALUE,LEFTLIMIT,RIGHTLIMIT))
+        })
+        RANGES_CHRC<-do.call(rbind,RANGES_CHRC)
+        RANGES_CHRC<-as.data.frame(RANGES_CHRC) %>%
+          mutate(Chromosome=C)
+        colnames(RANGES_CHRC)<-c("PeakPosition","PeakPvalue","RegionStart","RegionEnd","Chromosome")
+      }
       
       #Save ranges.
-      for(R in nrow(MERGEDRANGES_INDICES)){
-        RANGEPOSITIONS<-REMAININGDATA$Position[MERGEDRANGES_INDICES$Start[R]:MERGEDRANGES_INDICES$End[R]]
-        TMP<-data.frame(Chromosome=C,
-                        RegionStart=min(RANGEPOSITIONS),
-                        RegionEnd=max(RANGEPOSITIONS))
-        OUTPUTC<-rbind(OUTPUTC,TMP)
+      OUTPUT_CHRC<-rbind(OUTPUT_CHRC,RANGES_CHRC)
+      #Remove ranges from the data.
+      for(i in 1:nrow(RANGES_CHRC)){
+        DATA_CHRC<-DATA_CHRC %>%
+          filter(!(Position>=RANGES_CHRC$RegionStart[i] & Position<=RANGES_CHRC$RegionEnd[i]))
       }
-      
-      #Remove obtained range from the data.
-      REMOVEINDICES<-c()
-      for(i in nrow(MERGEDRANGES_INDICES)){
-        REMOVEINDICES<-c(REMOVEINDICES,MERGEDRANGES_INDICES$Start[i]:MERGEDRANGES_INDICES$End[i])
-      }
-      REMAININGDATA<-REMAININGDATA[-REMOVEINDICES,,drop=FALSE]
-      
     }
     
-    OUTPUTC<-OUTPUTC[!is.na(OUTPUTC$Chromosome),]
-    
-    #Merge overlapping/adjacent ranges within chromosome C.
-    OUTPUTC<-OUTPUTC[order(OUTPUTC$RegionStart,OUTPUTC$RegionEnd),c("RegionStart","RegionEnd")]
-    OUTPUTC_MERGED<-OUTPUTC %>% 
+    #Merge overlapping regions.
+    #If several peaks with the same p-value exist within a range, repeat range for each peak.
+    OUTPUT_CHRC<-OUTPUT_CHRC %>% 
+      filter(!is.na(Chromosome)) %>%
       arrange(RegionStart) %>% 
-      group_by(Index=cumsum(cummax(lag(RegionEnd,default=data.table::first(RegionEnd)))<RegionStart)) %>% 
-      summarise(RegionStart=data.table::first(RegionStart),RegionEnd=max(RegionEnd)) %>%
+      group_by(Index=cumsum(cummax(lag(RegionEnd+MINGAPSIZE/2,default=data.table::first(RegionEnd+MINGAPSIZE/2)))<RegionStart-MINGAPSIZE/2)) %>% 
+      dplyr::summarise(RegionStart=min(RegionStart),
+                       RegionEnd=max(RegionEnd),
+                       PeakPosition=PeakPosition[PeakPvalue==min(PeakPvalue)],
+                       PeakPvalue=min(PeakPvalue),
+                       NPeaks=n()) %>%
+      mutate(Chromosome=C) %>%
       as.data.frame
-    OUTPUTC_MERGED<-OUTPUTC_MERGED[,c("RegionStart","RegionEnd")] %>%
-      mutate(Chromosome=C)
+    OUTPUT_CHRC<-OUTPUT_CHRC[,c("Chromosome","PeakPosition","PeakPvalue","RegionStart","RegionEnd","NPeaks")]
     
     #Save ranges.
-    OUTPUT<-rbind(OUTPUT,OUTPUTC_MERGED)
+    OUTPUT<-rbind(OUTPUT,OUTPUT_CHRC)
     
   }
   
-  OUTPUT<-OUTPUT[!is.na(OUTPUT$Chromosome),]
-  OUTPUT$RegionLength<-OUTPUT$RegionEnd-OUTPUT$RegionStart
+  #Remove NA entries.
+  OUTPUT<-OUTPUT %>%
+    filter(!is.na(PeakPosition)) %>%
+    arrange(Chromosome,PeakPvalue)
+  OUTPUT$RegionLength<-OUTPUT$RegionEnd-OUTPUT$RegionStart+1
   
   return(OUTPUT)
   
 }
 
-# DF<-data.frame(Chromosome=rep(1,20),
-#                Position=c(c(1,10,1000,2000,10000,100000,200000,500000,700000,900000,
-#                           1.8e+6,3.3e+6,3.4e+6,3.6e+6,3.8e+6,4.1e+6,4.3e+6,4.35e+6,4.7e+6,6.1e+6),
-#                           c(1,10,1000,2000,10000,100000,200000,500000,700000,900000,
-#                             1.8e+6,3.3e+6,3.4e+6,3.6e+6,3.8e+6,4.1e+6,4.3e+6,4.35e+6,4.7e+6,6.1e+6)+5
-#                           ),
-#                Pvalue=c(c(5e-7,8e-3,1e-4,5e-7,9.9e-7,3e-8,8e-8,1e-8,9e-7,5e-7,1e-5,5.5e-6,1e-6,1e-5,1e-7,9e-7,5e-7,6e-6,9.8e-6,5e-7),
-#                         c(runif(20,min=0.011,max=0.5))
-#                         )) %>%
-#                  arrange(Chromosome,Position)
+# #Test data.
+# TESTDATA<-data.frame(Chromosome=rep(1,100),
+#                      Position=sample(1:1000,100,replace=FALSE),
+#                      Pvalue=runif(100,min=1e-10,max=1e-4))
 # 
-# p<-ggplot(DF)+
-#   geom_point(aes(x=Position,y=-log10(Pvalue)),color="blue")+
+# p<-ggplot(TESTDATA)+
+#   geom_point(aes(x=Position,y=-log10(Pvalue)),color="blue",size=0.3)+
 #   #geom_line(aes(x=Position,y=-log10(Pvalue)),linetype="dashed")+
 #   geom_hline(yintercept=-log10(0.01),linetype="dashed")+
 #   labs(x="Position",y=expression("-Log"[10]~"Pvalue"))+
 #   theme_bw()
 # p
 # 
-# REGIONS<-peak_range(CHRVECTOR=DF$Chromosome, #Vector of chromosomes.
-#                     POSVECTOR=DF$Position, #Vector of chromosomal positions.
-#                     PVALUEVECTOR=DF$Pvalue, #Vector of p-values.
-#                     SIGTHRESHOLD=0.01, #P-value significance threshold.
-#                     SEARCHDISTANCE=1e+6, #Maximum distance from last selected adjacent position.
-#                     LOCALPEAKTHRESHOLD=0.01) #Relative threshold of local peak (0.01 represents 2 orders of magnitude).
-# REGIONS
-
-
-
+# RANGES1<-peak_range(CHRVECTOR=TESTDATA$Chromosome,
+#                    POSVECTOR=TESTDATA$Position,
+#                    PVALUEVECTOR=TESTDATA$Pvalue,
+#                    METHOD="DistanceFromPeak",
+#                    SIGTHRESHOLD=0.01,
+#                    SEARCHDISTANCE=20,
+#                    LOCALPEAKTHRESHOLD=0.1,
+#                    MINGAPSIZE=0)
+# 
+# RANGES2<-peak_range(CHRVECTOR=TESTDATA$Chromosome,
+#                     POSVECTOR=TESTDATA$Position,
+#                     PVALUEVECTOR=TESTDATA$Pvalue,
+#                     METHOD="DistanceFromPeak",
+#                     SIGTHRESHOLD=0.01,
+#                     SEARCHDISTANCE=20,
+#                     LOCALPEAKTHRESHOLD=0.1,
+#                     MINGAPSIZE=10)
+# 
+# RANGES3<-peak_range(CHRVECTOR=TESTDATA$Chromosome,
+#                    POSVECTOR=TESTDATA$Position,
+#                    PVALUEVECTOR=TESTDATA$Pvalue,
+#                    METHOD="AdjacentPoints",
+#                    SIGTHRESHOLD=0.01,
+#                    SEARCHDISTANCE=20,
+#                    LOCALPEAKTHRESHOLD=0.1,
+#                    MINGAPSIZE=0)
+# 
+# RANGES4<-peak_range(CHRVECTOR=TESTDATA$Chromosome,
+#                     POSVECTOR=TESTDATA$Position,
+#                     PVALUEVECTOR=TESTDATA$Pvalue,
+#                     METHOD="AdjacentPoints",
+#                     SIGTHRESHOLD=0.01,
+#                     SEARCHDISTANCE=20,
+#                     LOCALPEAKTHRESHOLD=0.1,
+#                     MINGAPSIZE=10)
+# 
+# RANGES1
+# RANGES2
+# RANGES3
+# RANGES4
+# 
+# p1<-ggplot(TESTDATA)+
+#   geom_point(aes(x=Position,y=-log10(Pvalue)),color="blue",size=0.3)+
+#   geom_rect(data=RANGES1[RANGES1$RegionLength>1,],aes(xmin=RegionStart,xmax=RegionEnd,ymin=-Inf,ymax=Inf),
+#             fill="gray",
+#             alpha=0.3,
+#             inherit.aes=FALSE)+
+#   #geom_line(aes(x=Position,y=-log10(Pvalue)),linetype="dashed")+
+#   geom_hline(yintercept=-log10(0.01),linetype="dashed")+
+#   labs(x="Position",y=expression("-Log"[10]~"PvalueLRT"))+
+#   theme_bw()
+# p1
+# 
+# p2<-ggplot(TESTDATA)+
+#   geom_point(aes(x=Position,y=-log10(Pvalue)),color="blue",size=0.3)+
+#   geom_rect(data=RANGES2[RANGES2$RegionLength>1,],aes(xmin=RegionStart,xmax=RegionEnd,ymin=-Inf,ymax=Inf),
+#             fill="gray",
+#             alpha=0.3,
+#             inherit.aes=FALSE)+
+#   #geom_line(aes(x=Position,y=-log10(Pvalue)),linetype="dashed")+
+#   geom_hline(yintercept=-log10(0.01),linetype="dashed")+
+#   labs(x="Position",y=expression("-Log"[10]~"PvalueLRT"))+
+#   theme_bw()
+# p2
+# 
+# p3<-ggplot(TESTDATA)+
+#   geom_point(aes(x=Position,y=-log10(Pvalue)),color="blue",size=0.3)+
+#   geom_rect(data=RANGES3[RANGES3$RegionLength>1,],aes(xmin=RegionStart,xmax=RegionEnd,ymin=-Inf,ymax=Inf),
+#             fill="gray",
+#             alpha=0.3,
+#             inherit.aes=FALSE)+
+#   #geom_line(aes(x=Position,y=-log10(Pvalue)),linetype="dashed")+
+#   geom_hline(yintercept=-log10(0.01),linetype="dashed")+
+#   labs(x="Position",y=expression("-Log"[10]~"PvalueLRT"))+
+#   theme_bw()
+# p3
+# 
+# p4<-ggplot(TESTDATA)+
+#   geom_point(aes(x=Position,y=-log10(Pvalue)),color="blue",size=0.3)+
+#   geom_rect(data=RANGES4[RANGES4$RegionLength>1,],aes(xmin=RegionStart,xmax=RegionEnd,ymin=-Inf,ymax=Inf),
+#             fill="gray",
+#             alpha=0.3,
+#             inherit.aes=FALSE)+
+#   #geom_line(aes(x=Position,y=-log10(Pvalue)),linetype="dashed")+
+#   geom_hline(yintercept=-log10(0.01),linetype="dashed")+
+#   labs(x="Position",y=expression("-Log"[10]~"PvalueLRT"))+
+#   theme_bw()
+# p4
