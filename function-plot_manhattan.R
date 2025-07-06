@@ -8,9 +8,9 @@
 plot_manhattan<-function(
   CHRVECTOR=paste0("Chr",1:10), #Vector of chromosomes.
   POSVECTOR=1:10, #Vector of positions.
-  CHRSET, #Set of chromosomes to show in the plots.
+  CHRSET, #Optional. Set of chromosomes to show in the plots.
   VALUES=runif(10), #Vector of y values (p-values, likelihood values, iHS values, etc).
-  REGIONS, #Data frame (Chromosome,RegionStart,RegionEnd) with chromosomal regions to be shaded in per chromosome plots.
+  REGIONS, #Optional. Data frame (Chromosome,RegionStart,RegionEnd) with chromosomal regions to be shaded in per chromosome plots.
   ABOVETHRESHOLD=Inf, #Threshold above which points are plotted with alpha=1. If both ABOVETHRESHOLD and BELOWTHRESHOLD are set to Inf and -Inf, all points are plotted with alpha=1.
   BELOWTHRESHOLD=-Inf, #Threshold below which points are plotted with alpha=1.
   COLORS=c("deepskyblue","darkblue"), #Alternating colors for adjacent chromosomes.
@@ -18,7 +18,7 @@ plot_manhattan<-function(
   PLOTPERCHR=FALSE, #Plot per chromosome? (This options never uses standardized chromosome length).
   XLABEL="Chromosome", #X-axis label.
   YLABEL="Value", #Y-axis label.
-  PLOTTITLE="Manhattan plot"){ #
+  PLOTTITLE="Manhattan plot"){ 
   
   #Load libraries.
   library(ggplot2)
