@@ -9,7 +9,7 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
                      PVALUEVECTOR, #Vector of p-values.
                      METHOD="DistanceFromPeak", #Method used to obtain ranges: DistanceFromPeak, AdjacentPoints.
                      SIGTHRESHOLD=0.01, #P-value significance threshold.
-                     SEARCHDISTANCE=3e+6, #Maximum distance from local peak.
+                     SEARCHDISTANCE=3e+6, #Maximum distance from local peak (if DistanceFromPeak method), or maximum distance between adjacent significant points (if AdjacentPoints method).
                      LOCALPEAKTHRESHOLD=0.01, #Relative threshold of local peak (0.01 represents 2 orders of magnitude).
                      MINGAPSIZE=0){ #Minimum size of gaps between ranges. Adjacent ranges with a gap smaller than or equal to MINGAPSIZE will be merged together.
   
