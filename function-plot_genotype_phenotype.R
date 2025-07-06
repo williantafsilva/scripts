@@ -12,7 +12,7 @@ plot_genotype_phenotype<-function(MATRIX_GENOTYPES, #Data frame of genotypes wit
                                   PLOTTITLE="Genotype x Phenotype",
                                   XLABEL="Genotype",
                                   YLABEL="Phenotype",
-                                  MAXNPLOTS=25){ 
+                                  MAXNPLOTS=25){ #Maximum number of plots.
   
   #Load libraries.
   library(ggplot2)
