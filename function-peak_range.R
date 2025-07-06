@@ -41,7 +41,8 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
                      PeakPvalue=NA,
                      RegionStart=NA,
                      RegionEnd=NA,
-                     NPeaks=NA)
+                     NPeaks=NA,
+                     NSignificant=NA)
   
   for(C in unique(INPUTDATA$Chromosome)){
     
@@ -163,6 +164,18 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
       as.data.frame
     OUTPUT_CHRC<-OUTPUT_CHRC[,c("Chromosome","PeakPosition","PeakPvalue","RegionStart","RegionEnd","NPeaks")]
     
+    #Get number of significant points per region.
+    DATA_CHRC<-INPUTDATA %>% 
+      filter(Chromosome==C,
+             Pvalue<=SIGTHRESHOLD)
+    OUTPUT_CHRC$NSignificant<-NA
+    for(i in 1:nrow(OUTPUT_CHRC)){
+      OUTPUT_CHRC$NSignificant[i]<-DATA_CHRC %>%
+        filter(Position>=OUTPUT_CHRC$RegionStart[i],
+               Position<=OUTPUT_CHRC$RegionEnd[i]) %>%
+        nrow()
+    }
+    
     #Save ranges.
     OUTPUT<-rbind(OUTPUT,OUTPUT_CHRC)
     
@@ -185,7 +198,6 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
 # 
 # p<-ggplot(TESTDATA)+
 #   geom_point(aes(x=Position,y=-log10(Pvalue)),color="blue",size=0.3)+
-#   #geom_line(aes(x=Position,y=-log10(Pvalue)),linetype="dashed")+
 #   geom_hline(yintercept=-log10(0.01),linetype="dashed")+
 #   labs(x="Position",y=expression("-Log"[10]~"Pvalue"))+
 #   theme_bw()
@@ -238,7 +250,7 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
 #             fill="gray",
 #             alpha=0.3,
 #             inherit.aes=FALSE)+
-#   #geom_line(aes(x=Position,y=-log10(Pvalue)),linetype="dashed")+
+#   geom_point(data=RANGES1[RANGES1$RegionLength>1,],aes(x=PeakPosition,y=-log10(PeakPvalue)),color="red",size=0.5)+
 #   geom_hline(yintercept=-log10(0.01),linetype="dashed")+
 #   labs(x="Position",y=expression("-Log"[10]~"PvalueLRT"))+
 #   theme_bw()
@@ -250,7 +262,7 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
 #             fill="gray",
 #             alpha=0.3,
 #             inherit.aes=FALSE)+
-#   #geom_line(aes(x=Position,y=-log10(Pvalue)),linetype="dashed")+
+#   geom_point(data=RANGES2[RANGES2$RegionLength>1,],aes(x=PeakPosition,y=-log10(PeakPvalue)),color="red",size=0.5)+
 #   geom_hline(yintercept=-log10(0.01),linetype="dashed")+
 #   labs(x="Position",y=expression("-Log"[10]~"PvalueLRT"))+
 #   theme_bw()
@@ -262,7 +274,7 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
 #             fill="gray",
 #             alpha=0.3,
 #             inherit.aes=FALSE)+
-#   #geom_line(aes(x=Position,y=-log10(Pvalue)),linetype="dashed")+
+#   geom_point(data=RANGES3[RANGES3$RegionLength>1,],aes(x=PeakPosition,y=-log10(PeakPvalue)),color="red",size=0.5)+
 #   geom_hline(yintercept=-log10(0.01),linetype="dashed")+
 #   labs(x="Position",y=expression("-Log"[10]~"PvalueLRT"))+
 #   theme_bw()
@@ -274,7 +286,7 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
 #             fill="gray",
 #             alpha=0.3,
 #             inherit.aes=FALSE)+
-#   #geom_line(aes(x=Position,y=-log10(Pvalue)),linetype="dashed")+
+#   geom_point(data=RANGES4[RANGES4$RegionLength>1,],aes(x=PeakPosition,y=-log10(PeakPvalue)),color="red",size=0.5)+
 #   geom_hline(yintercept=-log10(0.01),linetype="dashed")+
 #   labs(x="Position",y=expression("-Log"[10]~"PvalueLRT"))+
 #   theme_bw()
