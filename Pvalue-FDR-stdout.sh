@@ -15,7 +15,7 @@
 #Output: FDR p-values.
 
 ##Usage: 
-##Pvalue-FDR-stdout <INPUT FILE> <COLUMN INDEX>
+##Pvalue-FDR-stdout.sh <INPUT FILE> <COLUMN INDEX>
 
 ############################################################################
 ##ACTIONS:
