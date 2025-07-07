@@ -107,8 +107,13 @@ MODEL<-modelLINEAR #Set model.
 #The p-value threshold determines which gene-SNP associations are saved in the output file.
 #Note that for larger datasets the threshold should be lower. Setting the threshold to a high 
 #value for a large dataset may cause excessively large output files.
-PTHRESHOLD.TRANS<-1e-2
-PTHRESHOLD.CIS<-1e-2
+if(ARGS[8]==TRUE){
+  PTHRESHOLD.TRANS<-1e-2
+  PTHRESHOLD.CIS<-1e-2
+}else{
+  PTHRESHOLD.TRANS<-1
+  PTHRESHOLD.CIS<-1
+}
 
 #Define the covariance matrix for the error term. This parameter is rarely used. 
 #If the covariance matrix is a multiple of identity, set it to numeric().
