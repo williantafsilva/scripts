@@ -15,7 +15,7 @@
 #Output: FDR p-values.
 
 ##Usage: 
-##Pvalue-Bonferroni-stdout <INPUT FILE> <COLUMN INDEX>
+##Pvalue-Bonferroni-stdout.sh <INPUT FILE> <COLUMN INDEX>
 
 ############################################################################
 ##ACTIONS:
