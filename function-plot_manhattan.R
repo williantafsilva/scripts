@@ -162,6 +162,7 @@ plot_manhattan<-function(
         myggplottheme
     }else{
       colnames(REGIONS)[1:3]<-c("CHR","RegionStart","RegionEnd")
+      REGIONS<-REGIONS[REGIONS$CHR %in% CHRSET,]
       p<-ggplot(data=DATA)+
         geom_rect(data=REGIONS,aes(xmin=RegionStart,xmax=RegionEnd,ymin=-Inf,ymax=Inf),
                   fill="gray",
