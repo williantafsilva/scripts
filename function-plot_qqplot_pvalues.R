@@ -9,6 +9,7 @@ plot_qqplot_pvalues<-function(
     PVALUES=c(runif(1000,min=0,max=1),runif(500,min=0,max=0.01)), #Vector of p values.
     CONFINTERVAL=0.95, #Confidence level of the point-wise confidence band. The default is 0.95. The confidence intervals are computed under the assumption of the p-values being drawn independently from a uniform [0,1] distribution. 
     SIGTHRESHOLD=0.01, #Significance level.
+    LOG10SCALE=TRUE, #Plot log10 scale.
     PLOTTITLE="QQ plot of p-values"){ 
   
   #Load libraries.
@@ -33,12 +34,7 @@ plot_qqplot_pvalues<-function(
                        strip.background=element_rect(colour="black",
                                                      fill="white"))
   
-  #Format data.
   N<-length(PVALUES)
-  DATA<-data.frame(Observed=-log10(sort(PVALUES)),
-                   Expected=-log10(ppoints(N)),
-                   CI_lower=-log10(qbeta(p=(1-CONFINTERVAL)/2,shape1=1:N,shape2=N:1)),
-                   CI_upper=-log10(qbeta(p=(1+CONFINTERVAL)/2,shape1=1:N,shape2=N:1)))
   
   #Calculate lambda statistic (measure of inflation). 
   #The lambda statistic should be close to 1 if the points fall within the expected range, 
@@ -49,26 +45,66 @@ plot_qqplot_pvalues<-function(
   CHISQ<-qchisq(1-PVALUES,1)
   LAMBDA<-median(CHISQ)/qchisq(0.5,1)
   
-  p<-ggplot(DATA)+
-    geom_ribbon(mapping=aes(x=Expected,ymin=CI_lower,ymax=CI_upper),
-                alpha=0.1)+
-    geom_segment(aes(x=0,y=-log10(SIGTHRESHOLD),xend=-log10(SIGTHRESHOLD),yend=-log10(SIGTHRESHOLD)),
-                 color="red",linetype=3,linewidth=0.5,alpha=0.5)+
-    geom_segment(aes(x=-log10(SIGTHRESHOLD),y=0,xend=-log10(SIGTHRESHOLD),yend=-log10(SIGTHRESHOLD)),
-                 color="red",linetype=3,linewidth=0.5,alpha=0.5)+
-    geom_point(aes(Expected,Observed),shape=16,size=1)+
-    geom_abline(intercept=0,slope=1,color="blue",alpha=0.5)+
-    geom_line(aes(Expected,CI_upper),linetype=3,linewidth=0.5)+
-    geom_line(aes(Expected,CI_lower),linetype=3,linewidth=0.5)+
-    annotate(geom="text",x=-Inf,y=Inf,
-             hjust=-0.15,
-             vjust=1+0.15*3,
-             label=substitute(lambda==L,list(L=LAMBDA)),#sprintf("λ = %.2f",LAMBDA)
-             size=5)+
-    labs(x=expression("Expected -log"[10]~"(P-value)"),
-         y=expression("Observed -log"[10]~"(P-value)"))+
-    ggtitle(PLOTTITLE)+
-    myggplottheme
+  if(LOG10SCALE==TRUE){
+    
+    #Format data.
+    DATA<-data.frame(Observed=-log10(sort(PVALUES)),
+                     Expected=-log10(ppoints(N)),
+                     CI_lower=-log10(qbeta(p=(1-CONFINTERVAL)/2,shape1=1:N,shape2=N:1)),
+                     CI_upper=-log10(qbeta(p=(1+CONFINTERVAL)/2,shape1=1:N,shape2=N:1)))
+    
+    p<-ggplot(DATA)+
+      geom_ribbon(mapping=aes(x=Expected,ymin=CI_lower,ymax=CI_upper),
+                  alpha=0.1)+
+      geom_segment(aes(x=0,y=-log10(SIGTHRESHOLD),xend=-log10(SIGTHRESHOLD),yend=-log10(SIGTHRESHOLD)),
+                   color="red",linetype=3,linewidth=0.5,alpha=0.5)+
+      geom_segment(aes(x=-log10(SIGTHRESHOLD),y=0,xend=-log10(SIGTHRESHOLD),yend=-log10(SIGTHRESHOLD)),
+                   color="red",linetype=3,linewidth=0.5,alpha=0.5)+
+      geom_point(aes(Expected,Observed),shape=16,size=1)+
+      geom_abline(intercept=0,slope=1,color="blue",alpha=0.5)+
+      geom_line(aes(Expected,CI_upper),linetype=3,linewidth=0.5)+
+      geom_line(aes(Expected,CI_lower),linetype=3,linewidth=0.5)+
+      annotate(geom="text",x=-Inf,y=Inf,
+               hjust=-0.15,
+               vjust=1+0.15*3,
+               label=substitute(lambda==L,list(L=LAMBDA)),#sprintf("λ = %.2f",LAMBDA)
+               size=5)+
+      labs(x=expression("Expected -log"[10]~"(P-value)"),
+           y=expression("Observed -log"[10]~"(P-value)"))+
+      ggtitle(PLOTTITLE)+
+      myggplottheme
+    
+  }else{
+    
+    #Format data.
+    DATA<-data.frame(Observed=sort(PVALUES),
+                     Expected=ppoints(N),
+                     CI_lower=qbeta(p=(1-CONFINTERVAL)/2,shape1=1:N,shape2=N:1),
+                     CI_upper=qbeta(p=(1+CONFINTERVAL)/2,shape1=1:N,shape2=N:1))
+    
+    p<-ggplot(DATA)+
+      geom_ribbon(mapping=aes(x=Expected,ymin=CI_lower,ymax=CI_upper),
+                  alpha=0.1)+
+      geom_segment(aes(x=0,y=SIGTHRESHOLD,xend=SIGTHRESHOLD,yend=SIGTHRESHOLD),
+                   color="red",linetype=3,linewidth=0.5,alpha=0.5)+
+      geom_segment(aes(x=SIGTHRESHOLD,y=0,xend=SIGTHRESHOLD,yend=SIGTHRESHOLD),
+                   color="red",linetype=3,linewidth=0.5,alpha=0.5)+
+      geom_point(aes(Expected,Observed),shape=16,size=1)+
+      geom_abline(intercept=0,slope=1,color="blue",alpha=0.5)+
+      geom_line(aes(Expected,CI_upper),linetype=3,linewidth=0.5)+
+      geom_line(aes(Expected,CI_lower),linetype=3,linewidth=0.5)+
+      annotate(geom="text",x=-Inf,y=Inf,
+               hjust=-0.15,
+               vjust=1+0.15*3,
+               label=substitute(lambda==L,list(L=LAMBDA)),#sprintf("λ = %.2f",LAMBDA)
+               size=5)+
+      labs(x=expression("Expected P-value"),
+           y=expression("Observed P-value"))+
+      ggtitle(PLOTTITLE)+
+      myggplottheme
+    
+  }
+  
   return(p)
   
 }
