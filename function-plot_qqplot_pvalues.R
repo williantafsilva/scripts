@@ -121,4 +121,6 @@ plot_qqplot_pvalues<-function(
 #plot_qqplot_pvalues(PVALUES=PVALUES, #Vector of p values.
 #                    CONFINTERVAL=0.95,
 #                    SIGTHRESHOLD=0.01,
-#                    PLOTTITLE="QQ plot of p-values")
+#                    LOG10SCALE=TRUE,
+#                    PLOTTITLE="QQ plot of p-values",
+#                    MAXNPOINTS=Inf)
