@@ -10,7 +10,8 @@ plot_qqplot_pvalues<-function(
     CONFINTERVAL=0.95, #Confidence level of the point-wise confidence band. The default is 0.95. The confidence intervals are computed under the assumption of the p-values being drawn independently from a uniform [0,1] distribution. 
     SIGTHRESHOLD=0.01, #Significance level.
     LOG10SCALE=TRUE, #Plot log10 scale.
-    PLOTTITLE="QQ plot of p-values"){ 
+    PLOTTITLE="QQ plot of p-values",
+    MAXNPOINTS=Inf){ #Maximum number of points to plot (sampled randomly).
   
   #Load libraries.
   library(ggplot2)
@@ -52,6 +53,9 @@ plot_qqplot_pvalues<-function(
                      Expected=-log10(ppoints(N)),
                      CI_lower=-log10(qbeta(p=(1-CONFINTERVAL)/2,shape1=1:N,shape2=N:1)),
                      CI_upper=-log10(qbeta(p=(1+CONFINTERVAL)/2,shape1=1:N,shape2=N:1)))
+    if(MAXNPOINTS<Inf & nrow(DATA)>MAXNPOINTS){ #Sample points to be plotted.
+      DATA<-DATA[sample(1:nrow(DATA),MAXNPOINTS,replace=FALSE),]
+    }
     
     p<-ggplot(DATA)+
       geom_ribbon(mapping=aes(x=Expected,ymin=CI_lower,ymax=CI_upper),
@@ -81,6 +85,9 @@ plot_qqplot_pvalues<-function(
                      Expected=ppoints(N),
                      CI_lower=qbeta(p=(1-CONFINTERVAL)/2,shape1=1:N,shape2=N:1),
                      CI_upper=qbeta(p=(1+CONFINTERVAL)/2,shape1=1:N,shape2=N:1))
+    if(MAXNPOINTS<Inf & nrow(DATA)>MAXNPOINTS){ #Sample points to be plotted.
+      DATA<-DATA[sample(1:nrow(DATA),MAXNPOINTS,replace=FALSE),]
+    }
     
     p<-ggplot(DATA)+
       geom_ribbon(mapping=aes(x=Expected,ymin=CI_lower,ymax=CI_upper),
