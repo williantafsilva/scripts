@@ -7,7 +7,8 @@
 filter_genotypefreq<-function(MATRIX_GENOTYPES, #Data frame of genotypes with SNPs per row (1st column is SNP ID) and samples per column.
                               MINGENFREQ=0, #Minimum genotype frequency (<1) or count (>1).
                               OUTPUTFILTEREDMATRIX=FALSE, #If true, the function will output a list containing, in addition to the SNP IDs of low frequency genotypes, the filtered genotype matrix.
-                              OUTPUTLOWFREQGENOTYPES=FALSE){ #If true, the function will output a list containing, in addition to the SNP IDs of low frequency genotypes, the genotype matrix of SNPs with low frequency genotypes.
+                              OUTPUTLOWFREQGENOTYPES=FALSE, #If true, the function will output a list containing, in addition to the SNP IDs of low frequency genotypes, the genotype matrix of SNPs with low frequency genotypes.
+                              OUTPUTGENCOUNT=FALSE){  #If true, the function will output a list containing, in addition to the SNP IDs of low frequency genotypes, the table of genotype counts.
   
   #Load libraries.
   library(ggplot2)
@@ -63,6 +64,10 @@ filter_genotypefreq<-function(MATRIX_GENOTYPES, #Data frame of genotypes with SN
     DATA_GENOTYPESLOWFREQ<-DATA_GENOTYPES %>%
       filter(DATA_GENOTYPES[,1] %in% SNPltMINGENFREQ)
     OUTPUT<-c(OUTPUT,list(MATRIXLOWFREQ=DATA_GENOTYPESLOWFREQ))
+  }
+  
+  if(OUTPUTGENCOUNT){
+    OUTPUT<-c(OUTPUT,list(COUNTS=GENOTYPES_COUNTS))
   }
   
   return(OUTPUT)
