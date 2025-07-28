@@ -72,6 +72,7 @@ plot_genotype_phenotype<-function(MATRIX_GENOTYPES, #Data frame of genotypes wit
   #Filter out SNPs that have at least one genotype with frequency <MINGENFREQ.
   DATA_GENOTYPES<-DATA_GENOTYPES %>%
     filter(!(DATA_GENOTYPES[,1] %in% SNPltMINGENFREQ))
+  if(nrow(DATA_GENOTYPES)==0){return(paste0("Genotypes do not meet the MINGENFREQ=",MINGENFREQ," requirement."))}
   
   #Data frame with target SNP-phenotype pairs.
   SNP_PHENOTYPE<-data.frame(SNP_ID=VECTOR_SNP_ID,
