@@ -16,7 +16,7 @@ filter_genotypefreq<-function(MATRIX_GENOTYPES, #Data frame of genotypes with SN
   library(gtools)
   
   #Transform phased genotypes into unphased genotypes.
-  DATA_GENOTYPES<-data.frame(lapply(DATA_GENOTYPES,function(x){
+  DATA_GENOTYPES<-data.frame(lapply(MATRIX_GENOTYPES,function(x){
     x<-gsub("\\|","/",x)
     x<-gsub("C/A","A/C",x)
     x<-gsub("G/A","A/G",x)
