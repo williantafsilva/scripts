@@ -145,7 +145,10 @@ plot_manhattan<-function(
       ggtitle(PLOTTITLE)+
       myggplottheme
   }else{
-    if(length(REGIONS)<3){
+    if(is.data.frame(REGIONS)){
+      if(ncol(REGIONS)<3 || nrow(REGIONS)==0){REGIONS<-NA}
+    }
+    if(!is.data.frame(REGIONS)){
       p<-ggplot(data=DATA)+
         geom_point(aes(POS,VALUE),
                    color=DATA$CHR_COLOR,
