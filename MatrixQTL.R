@@ -88,7 +88,7 @@ MODEL<-modelLINEAR #Set model.
 if(ARGS[6]==TRUE){
   PTHRESHOLD<-1e-2
 }else{
-  PTHRESHOLD<-1
+  PTHRESHOLD<-1e-2
 }
 
 #Define the covariance matrix for the error term. This parameter is rarely used. 
