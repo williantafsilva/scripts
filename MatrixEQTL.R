@@ -111,8 +111,8 @@ if(ARGS[8]==TRUE){
   PTHRESHOLD.TRANS<-1e-2
   PTHRESHOLD.CIS<-1e-2
 }else{
-  PTHRESHOLD.TRANS<-1
-  PTHRESHOLD.CIS<-1
+  PTHRESHOLD.TRANS<-1e-2
+  PTHRESHOLD.CIS<-1e-2
 }
 
 #Define the covariance matrix for the error term. This parameter is rarely used. 
