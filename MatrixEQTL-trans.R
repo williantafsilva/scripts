@@ -189,7 +189,6 @@ Input snp location file: ",FILE_SNPLOCATION,"
 Input gene location file: ",FILE_GENELOCATION,"
 Input FDR request: ",ARGS[8],"
 Output file: ",OUTPUTFILE1,"
-Output file: ",OUTPUTFILE2,"
 
 "),file=paste0(OUTPUTLOCATION,"/README.txt"),append=TRUE)
 
