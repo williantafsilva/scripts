@@ -47,9 +47,12 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
   for(C in unique(INPUTDATA$Chromosome)){
     
     #Get data for chromosome C.
-    DATA_CHRC<-INPUTDATA %>% 
-      filter(Chromosome==C) %>% 
+    DATA_CHRC<-INPUTDATA[INPUTDATA$Chromosome==C,] %>% 
       arrange(Position)
+
+    #DATA_CHRC<-INPUTDATA %>% 
+    #  filter(Chromosome==C) %>% 
+    #  arrange(Position)
     
     #Create output data frame.
     OUTPUT_CHRC<-data.frame(Chromosome=NA,
