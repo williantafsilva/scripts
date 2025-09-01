@@ -175,10 +175,12 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
       #         Pvalue<=SIGTHRESHOLD)
       OUTPUT_CHRC$NSignificant<-NA
       for(i in 1:nrow(OUTPUT_CHRC)){
-        OUTPUT_CHRC$NSignificant[i]<-DATA_CHRC %>%
-          filter(Position>=OUTPUT_CHRC$RegionStart[i],
-                 Position<=OUTPUT_CHRC$RegionEnd[i]) %>%
+        OUTPUT_CHRC$NSignificant[i]<-DATA_CHRC[DATA_CHRC$Position>=OUTPUT_CHRC$RegionStart[i] & DATA_CHRC$Position<=OUTPUT_CHRC$RegionEnd[i],] %>%
           nrow()
+        #OUTPUT_CHRC$NSignificant[i]<-DATA_CHRC %>%
+        #  filter(Position>=OUTPUT_CHRC$RegionStart[i],
+        #         Position<=OUTPUT_CHRC$RegionEnd[i]) %>%
+        #  nrow()
       }
       
       #Save ranges.
