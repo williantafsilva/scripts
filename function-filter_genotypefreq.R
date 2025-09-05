@@ -37,17 +37,18 @@ filter_genotypefreq<-function(MATRIX_GENOTYPES, #Data frame of genotypes with SN
                                CT=rowSums(DATA_GENOTYPES=="C/T"),
                                GG=rowSums(DATA_GENOTYPES=="G/G"),
                                GT=rowSums(DATA_GENOTYPES=="G/T"),
-                               TT=rowSums(DATA_GENOTYPES=="T/T"))
-  GENOTYPES_COUNTS$N_Samples<-rowSums(GENOTYPES_COUNTS[,2:11])
-  GENOTYPES_COUNTS$N_Genotypes<-rowSums(GENOTYPES_COUNTS[,2:11]>0)
+                               TT=rowSums(DATA_GENOTYPES=="T/T"),
+                               MISSING=rowSums(DATA_GENOTYPES=="./."))
+  GENOTYPES_COUNTS$N_Samples<-rowSums(GENOTYPES_COUNTS[,2:12])
+  GENOTYPES_COUNTS$N_Genotypes<-rowSums(GENOTYPES_COUNTS[,2:12]>0)
   if(MINGENFREQ<1){
-    GENOTYPES_COUNTS$N_Genotypes_ltMINGENFREQ<-rowSums(GENOTYPES_COUNTS[,2:11]>0 & (GENOTYPES_COUNTS[,2:11]/GENOTYPES_COUNTS$N_Samples)<MINGENFREQ)
+    GENOTYPES_COUNTS$N_Genotypes_ltMINGENFREQ<-rowSums(GENOTYPES_COUNTS[,2:12]>0 & (GENOTYPES_COUNTS[,2:12]/GENOTYPES_COUNTS$N_Samples)<MINGENFREQ)
     #SNPs that have at least one genotype with frequency <MINGENFREQ.
-    SNPltMINGENFREQ<-GENOTYPES_COUNTS$SNP[which(rowSums(GENOTYPES_COUNTS[,2:11]>0 & (GENOTYPES_COUNTS[,2:11]/GENOTYPES_COUNTS$N_Samples)<MINGENFREQ)>0)]
+    SNPltMINGENFREQ<-GENOTYPES_COUNTS$SNP[which(rowSums(GENOTYPES_COUNTS[,2:12]>0 & (GENOTYPES_COUNTS[,2:12]/GENOTYPES_COUNTS$N_Samples)<MINGENFREQ)>0)]
   }else{
-    GENOTYPES_COUNTS$N_Genotypes_ltMINGENFREQ<-rowSums(GENOTYPES_COUNTS[,2:11]>0 & GENOTYPES_COUNTS[,2:11]<MINGENFREQ)
+    GENOTYPES_COUNTS$N_Genotypes_ltMINGENFREQ<-rowSums(GENOTYPES_COUNTS[,2:12]>0 & GENOTYPES_COUNTS[,2:12]<MINGENFREQ)
     #SNPs that have at least one genotype with frequency <MINGENFREQ.
-    SNPltMINGENFREQ<-GENOTYPES_COUNTS$SNP[which(rowSums(GENOTYPES_COUNTS[,2:11]>0 & GENOTYPES_COUNTS[,2:11]<MINGENFREQ)>0)]
+    SNPltMINGENFREQ<-GENOTYPES_COUNTS$SNP[which(rowSums(GENOTYPES_COUNTS[,2:12]>0 & GENOTYPES_COUNTS[,2:12]<MINGENFREQ)>0)]
   }
   
   OUTPUT<-list(SNPltMINGENFREQ=SNPltMINGENFREQ)
