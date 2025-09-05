@@ -163,7 +163,7 @@ Date: ${RUNDATE}
 Job ID: ${JOBID}
 Script: ${PATHTOMYSUBMITTEDSCRIPTS}/job${JOBID}-date${RUNDATE}-${SCRIPTNAME}
 Input file: ${INPUTFILE}
-Input minimum genotype frequency: ${INPUTGENFREQ}
+Input minimum genotype frequency: ${INPUTMINGENFREQ}
 Output file: ${OUTPUTFILE1}
 Output file: ${OUTPUTFILE2}
 Output file: ${OUTPUTFILE3}
