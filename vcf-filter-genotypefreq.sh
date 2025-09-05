@@ -148,7 +148,8 @@ write.table(matrix(SNPgeMINGENFREQ),"'${OUTPUTFILE2}'",sep="\n",row.names=FALSE,
 '
 
 #Filter VCF file.
-bcftools view --regions $(cat ${OUTPUTFILE2} | paste -sd,) ${INPUTFILE} | bcftools sort --temp-dir "${OUTPUTLOCATION}/" --write-index=tbi --output-type z --output ${OUTPUTFILE3}
+cat ${OUTPUTFILE2} | tr ':' '\t' > ${TMPFILE}
+bcftools view --regions-file ${TMPFILE} ${INPUTFILE} | bcftools sort --temp-dir "${OUTPUTLOCATION}/" --write-index=tbi --output-type z --output ${OUTPUTFILE3}
 
 rm -f ${TMPFILE}
 
