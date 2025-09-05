@@ -27,28 +27,12 @@ INPUTFILE=$1
 awk -F'\t' '{
     all_zero = 1
     for (i=2; i<=NF; i++) {
-        #Remove leading zeros and check if numeric value is zero.
-        gsub(/^0+(\.0+)?$/,"0",$i)  #Normalize values like 000.00->0.
-        if ($i + 0 != 0) {
+        if ($i != 0) {
             all_zero = 0
             break
         }
     }
-
     if (all_zero == 0) {
         print
     }
 }' ${INPUTFILE}
-
-#awk -F'\t' '{
-#    all_zero = 1
-#    for (i=2; i<=NF; i++) {
-#        if ($i != 0) {
-#            all_zero = 0
-#            break
-#        }
-#    }
-#    if (all_zero == 0) {
-#        print
-#    }
-#}' ${INPUTFILE}
