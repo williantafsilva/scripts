@@ -14,12 +14,12 @@
 
 - *Rscript-tmpscript.sh* requires the following additional environment variable:
 
-	- PATHTOMYTMPSCRIPTS
+	- **PATHTOMYTMPSCRIPTS**
 
 - Some *\*stdout.sh* scripts require the following environment variables:
 
-	- PATHTOPROJTRASH
-	- PATHTOPROJTMP
-	- PATHTOPROJSAFE
-	- PATHTOPROJEXPORT
-	- PATHTOPROJTEST
+	- **PATHTOPROJTRASH**
+	- **PATHTOPROJTMP**
+	- **PATHTOPROJSAFE**
+	- **PATHTOPROJEXPORT**
+	- **PATHTOPROJTEST**
