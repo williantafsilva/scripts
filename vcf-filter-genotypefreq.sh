@@ -105,7 +105,7 @@ MATRIX_GENOTYPES<-read.table("'${TMPFILE1}'",header=TRUE,sep="\t",stringsAsFacto
 
 #Transform phased genotypes into unphased genotypes.
 DATA_GENOTYPES<-data.frame(lapply(MATRIX_GENOTYPES,function(x){
-x<-gsub("\\|","/",x)
+x<-gsub("\\\\|","/",x)
 x<-gsub("C/A","A/C",x)
 x<-gsub("G/A","A/G",x)
 x<-gsub("T/A","A/T",x)
