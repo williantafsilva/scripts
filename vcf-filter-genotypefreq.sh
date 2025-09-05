@@ -78,15 +78,16 @@ INPUTFILENAME=${INPUTFILE##*/}
 ##OUTPUT:
 
 OUTPUTFILEPREFIX=$(echo ${INPUTFILENAME} | sed 's/\.vcf.*$//' | sed 's/\.bcf.*$//' | sed 's/-job[0-9].*$//')
-OUTPUTFILE1NAME=$(echo "list-SNPS-LFMG.filterLFMG-job${JOBID}.txt") 
-OUTPUTFILE2NAME=$(echo "${OUTPUTFILEPREFIX}.filterLFMG-job${JOBID}.vcf.gz") 
-OUTPUTFILE3NAME=$(echo "${OUTPUTFILE2NAME}.tbi")
+OUTPUTFILE1NAME=$(echo "list-SNPltMINGENFREQ.filterLFMG-job${JOBID}.txt") 
+OUTPUTFILE2NAME=$(echo "list-SNPgeMINGENFREQ.filterLFMG-job${JOBID}.txt") 
+OUTPUTFILE3NAME=$(echo "${OUTPUTFILEPREFIX}.filterLFMG-job${JOBID}.vcf.gz") 
+OUTPUTFILE4NAME=$(echo "${OUTPUTFILE3NAME}.tbi")
 OUTPUTFILE1=$(echo "${OUTPUTLOCATION}/${OUTPUTFILE1NAME}") 
 OUTPUTFILE2=$(echo "${OUTPUTLOCATION}/${OUTPUTFILE2NAME}") 
 OUTPUTFILE3=$(echo "${OUTPUTLOCATION}/${OUTPUTFILE3NAME}") 
+OUTPUTFILE4=$(echo "${OUTPUTLOCATION}/${OUTPUTFILE4NAME}") 
 
-TMPFILE1=$(echo "${OUTPUTLOCATION}/tmp1-job${JOBID}.txt") 
-TMPFILE2=$(echo "${OUTPUTLOCATION}/tmp2-job${JOBID}.txt") 
+TMPFILE=$(echo "${OUTPUTLOCATION}/tmp-job${JOBID}.txt") 
 
 ############################################################################
 ##ACTIONS:
@@ -95,13 +96,13 @@ TMPFILE2=$(echo "${OUTPUTLOCATION}/tmp2-job${JOBID}.txt")
 {
 	echo -ne "SNP\t$(bcftools query -l "${INPUTFILE}" | tr '\n' '\t' | sed 's/\t$/\n/')"
     echo ""
-} > "${TMPFILE1}"
-bcftools query -f '%CHROM:%POS[\t%TGT]\n' "${INPUTFILE}" >> "${TMPFILE1}"
+} > "${TMPFILE}"
+bcftools query -f '%CHROM:%POS[\t%TGT]\n' "${INPUTFILE}" >> "${TMPFILE}"
 
 ##Run R to get list of SNPs with low frequency minor genotypes.
 Rscript --vanilla -e '
 #Read input data.
-MATRIX_GENOTYPES<-read.table("'${TMPFILE1}'",header=TRUE,sep="\t",stringsAsFactors=FALSE)
+MATRIX_GENOTYPES<-read.table("'${TMPFILE}'",header=TRUE,sep="\t",stringsAsFactors=FALSE)
 
 #Transform phased genotypes into unphased genotypes.
 DATA_GENOTYPES<-data.frame(lapply(MATRIX_GENOTYPES,function(x){
@@ -143,18 +144,18 @@ if('${INPUTMINGENFREQ}'<1){
 }
 
 write.table(matrix(SNPltMINGENFREQ),"'${OUTPUTFILE1}'",sep="\n",row.names=FALSE,col.names=FALSE,quote=FALSE)
-write.table(matrix(SNPgeMINGENFREQ),"'${TMPFILE2}'",sep="\n",row.names=FALSE,col.names=FALSE,quote=FALSE)
+write.table(matrix(SNPgeMINGENFREQ),"'${OUTPUTFILE2}'",sep="\n",row.names=FALSE,col.names=FALSE,quote=FALSE)
 '
 
 #Filter VCF file.
-bcftools view --regions-file ${TMPFILE2} ${INPUTFILE} | bcftools sort --temp-dir "${OUTPUTLOCATION}/" --write-index=tbi --output-type z --output ${OUTPUTFILE2}
+bcftools view --regions-file ${OUTPUTFILE2} ${INPUTFILE} | bcftools sort --temp-dir "${OUTPUTLOCATION}/" --write-index=tbi --output-type z --output ${OUTPUTFILE3}
 
-rm -f ${TMPFILE1} ${TMPFILE2}
+rm -f ${TMPFILE}
 
 ############################################################################
 ##SAVE CONTROL FILES:
 
-if [[ -s "${OUTPUTFILE3}" ]]; then
+if [[ -s "${OUTPUTFILE4}" ]]; then
 	
 	##README LOG ENTRY:
 echo "############################################################################
@@ -166,6 +167,7 @@ Input minimum genotype frequency: ${INPUTGENFREQ}
 Output file: ${OUTPUTFILE1}
 Output file: ${OUTPUTFILE2}
 Output file: ${OUTPUTFILE3}
+Output file: ${OUTPUTFILE4}
 " >> $(echo "${OUTPUTLOCATION}/README.txt") 
 
 	##COPY OF SCRIPT:
