@@ -60,10 +60,10 @@ Job ID (\$SLURM_JOB_ID): ${SLURM_JOB_ID}"
 ############################################################################
 ##LOAD TOOLS:
 
-module load bioinfo-tools
-module load bcftools
 module load PDC/24.11
 module load R/4.4.2-cpeGNU-24.11
+module load bioinfo-tools
+module load bcftools
 
 ############################################################################
 ##INPUT:
@@ -100,35 +100,37 @@ TMPFILE2=$(echo "${OUTPUTLOCATION}/tmp2-job${JOBID}.txt")
 bcftools query -f '%CHROM:%POS[\t%TGT]\n' "${INPUTFILE}" >> "${TMPFILE1}"
 
 ##Run R to get list of SNPs with low frequency minor genotypes.
-Rscript --vanilla -e "
+Rscript --vanilla -e '
 #Read input data.
-MATRIX_GENOTYPES<-read.table('${TMPFILE1}',header=TRUE,sep='\t',stringsAsFactors=FALSE)
+MATRIX_GENOTYPES<-read.table("'${TMPFILE1}'",header=TRUE,sep="\t",stringsAsFactors=FALSE)
 
 #Transform phased genotypes into unphased genotypes.
 DATA_GENOTYPES<-data.frame(lapply(MATRIX_GENOTYPES,function(x){
-x<-gsub('\\|','/',x)
-x<-gsub('C/A','A/C',x)
-x<-gsub('G/A','A/G',x)
-x<-gsub('T/A','A/T',x)
-x<-gsub('G/C','C/G',x)
-x<-gsub('T/C','C/T',x)
-gsub('T/G','G/T',x)}))
+x<-gsub("\\|","/",x)
+x<-gsub("C/A","A/C",x)
+x<-gsub("G/A","A/G",x)
+x<-gsub("T/A","A/T",x)
+x<-gsub("G/C","C/G",x)
+x<-gsub("T/C","C/T",x)
+gsub("T/G","G/T",x)}))
 rownames(DATA_GENOTYPES)<-DATA_GENOTYPES[,1]
 
 #Count samples per genotype and remove SNPs with low genotype counts (<MINGENFREQ per genotype).
 GENOTYPES_COUNTS<-data.frame(SNP=DATA_GENOTYPES[,1],
-                           AA=rowSums(DATA_GENOTYPES=='A/A'),
-                           AC=rowSums(DATA_GENOTYPES=='A/C'),
-                           AG=rowSums(DATA_GENOTYPES=='A/G'),
-                           AT=rowSums(DATA_GENOTYPES=='A/T'),
-                           CC=rowSums(DATA_GENOTYPES=='C/C'),
-                           CG=rowSums(DATA_GENOTYPES=='C/G'),
-                           CT=rowSums(DATA_GENOTYPES=='C/T'),
-                           GG=rowSums(DATA_GENOTYPES=='G/G'),
-                           GT=rowSums(DATA_GENOTYPES=='G/T'),
-                           TT=rowSums(DATA_GENOTYPES=='T/T'))
+                           AA=rowSums(DATA_GENOTYPES=="A/A"),
+                           AC=rowSums(DATA_GENOTYPES=="A/C"),
+                           AG=rowSums(DATA_GENOTYPES=="A/G"),
+                           AT=rowSums(DATA_GENOTYPES=="A/T"),
+                           CC=rowSums(DATA_GENOTYPES=="C/C"),
+                           CG=rowSums(DATA_GENOTYPES=="C/G"),
+                           CT=rowSums(DATA_GENOTYPES=="C/T"),
+                           GG=rowSums(DATA_GENOTYPES=="G/G"),
+                           GT=rowSums(DATA_GENOTYPES=="G/T"),
+                           TT=rowSums(DATA_GENOTYPES=="T/T"),
+                       	   NA=rowSums(DATA_GENOTYPES=="./."))
 GENOTYPES_COUNTS$N_Samples<-rowSums(GENOTYPES_COUNTS[,2:11])
 GENOTYPES_COUNTS$N_Genotypes<-rowSums(GENOTYPES_COUNTS[,2:11]>0)
+
 if(MINGENFREQ<1){
 	GENOTYPES_COUNTS$N_Genotypes_ltMINGENFREQ<-rowSums(GENOTYPES_COUNTS[,2:11]>0 & (GENOTYPES_COUNTS[,2:11]/GENOTYPES_COUNTS$N_Samples)<MINGENFREQ)
 	#SNPs that have at least one genotype with frequency <MINGENFREQ.
@@ -141,12 +143,14 @@ if(MINGENFREQ<1){
 	SNPgeMINGENFREQ<-GENOTYPES_COUNTS$SNP[!(GENOTYPES_COUNTS$SNP %in% SNPltMINGENFREQ)]
 }
 
-write.table(matrix(SNPltMINGENFREQ),'${OUTPUTFILE1}',sep='\n',row.names=FALSE,col.names=FALSE,quote=FALSE)
-write.table(matrix(SNPgeMINGENFREQ),'${TMPFILE2}',sep='\n',row.names=FALSE,col.names=FALSE,quote=FALSE)
-"
+write.table(matrix(SNPltMINGENFREQ),"'${OUTPUTFILE1}'",sep="\n",row.names=FALSE,col.names=FALSE,quote=FALSE)
+write.table(matrix(SNPgeMINGENFREQ),"'${TMPFILE2}'",sep="\n",row.names=FALSE,col.names=FALSE,quote=FALSE)
+'
 
 #Filter VCF file.
 bcftools view --regions-file ${TMPFILE2} ${INPUTFILE} | bcftools sort --temp-dir "${OUTPUTLOCATION}/" --write-index=tbi --output-type z --output ${OUTPUTFILE2}
+
+rm -f ${TMPFILE1} ${TMPFILE2}
 
 ############################################################################
 ##SAVE CONTROL FILES:
