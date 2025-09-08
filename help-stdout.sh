@@ -135,8 +135,8 @@ cat ${INPUTFILE} | awk '"'"'{$1=""; print $0}'"'"'
 ---> Print all but the first two columns using AWK.
 cat ${INPUTFILE} | awk '"'"'{$1=$2=""; print $0}'"'"'
 
----> 
-
+---> Get repeated lines and number of occurences.
+cat ${INPUTFILE} | sort | uniq -c | awk '$1 > 1 {print $2"\t"$1}'
 
 ---> 
 
