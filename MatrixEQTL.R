@@ -90,8 +90,10 @@ if(ARGS[8]==TRUE){
 
 OUTPUTFILE1NAME<-paste0("matrixeqtl-transeqtl-",OUTPUTNAMESTRING,"-job",JOBID,".txt")
 OUTPUTFILE2NAME<-paste0("matrixeqtl-ciseqtl-",OUTPUTNAMESTRING,"-job",JOBID,".txt")
+OUTPUTFILE3NAME<-paste0("matrixeqtl-parameters-",OUTPUTNAMESTRING,"-job",JOBID,".txt")
 OUTPUTFILE1<-paste0(OUTPUTLOCATION,"/",OUTPUTFILE1NAME)
 OUTPUTFILE2<-paste0(OUTPUTLOCATION,"/",OUTPUTFILE2NAME)
+OUTPUTFILE3<-paste0(OUTPUTLOCATION,"/",OUTPUTFILE3NAME)
 
 ############################################################################
 #ACTIONS:
@@ -175,6 +177,20 @@ MATRIXEQTLRESULT<-Matrix_eQTL_main(DATA_GENOTYPE,
                                    pvalue.hist=FALSE,
                                    noFDRsaveMemory=SKIPFDRCALC)
 
+#Save paremeters in a file.
+D1<-MATRIXEQTLRESULT$param[names(MATRIXEQTLRESULT$param)!="errorCovariance"]
+D2<-MATRIXEQTLRESULT$all[1:2]
+D3<-MATRIXEQTLRESULT$cis[1:2]
+D4<-MATRIXEQTLRESULT$trans[1:2]
+names(D2)<-c("all.ntests","all.neqtls")
+names(D3)<-c("cis.ntests","cis.neqtls")
+names(D4)<-c("trans.ntests","trans.neqtls")
+x<-c(D1,D2,D3,D4)
+PARAMETERS<-data.frame(Parameter=names(x),
+                       Value=unlist(x),
+                       stringsAsFactors=FALSE)
+write.table(PARAMETERS,OUTPUTFILE3,sep="\t",col.names=TRUE,row.names=FALSE,quote=FALSE)
+
 ############################################################################
 #SAVE CONTROL FILES:
 
@@ -190,6 +206,7 @@ Input gene location file: ",FILE_GENELOCATION,"
 Input FDR request: ",ARGS[8],"
 Output file: ",OUTPUTFILE1,"
 Output file: ",OUTPUTFILE2,"
+Output file: ",OUTPUTFILE3,"
 
 "),file=paste0(OUTPUTLOCATION,"/README.txt"),append=TRUE)
 
