@@ -177,7 +177,7 @@ MATRIXEQTLRESULT<-Matrix_eQTL_main(DATA_GENOTYPE,
                                    pvalue.hist=FALSE,
                                    noFDRsaveMemory=SKIPFDRCALC)
 
-#Save paremeters in a file.
+#Save parameters in a file.
 D1<-MATRIXEQTLRESULT$param[names(MATRIXEQTLRESULT$param)!="errorCovariance"]
 D2<-MATRIXEQTLRESULT$all[1:2]
 D3<-MATRIXEQTLRESULT$cis[1:2]
