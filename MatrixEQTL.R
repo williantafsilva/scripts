@@ -90,7 +90,7 @@ if(ARGS[8]==TRUE){
 
 OUTPUTFILE1NAME<-paste0("matrixeqtl-transeqtl-",OUTPUTNAMESTRING,"-job",JOBID,".txt")
 OUTPUTFILE2NAME<-paste0("matrixeqtl-ciseqtl-",OUTPUTNAMESTRING,"-job",JOBID,".txt")
-OUTPUTFILE3NAME<-paste0("matrixeqtl-parameters-",OUTPUTNAMESTRING,"-job",JOBID,".txt")
+OUTPUTFILE3NAME<-paste0("matrixeqtl-info-",OUTPUTNAMESTRING,"-job",JOBID,".txt")
 OUTPUTFILE1<-paste0(OUTPUTLOCATION,"/",OUTPUTFILE1NAME)
 OUTPUTFILE2<-paste0(OUTPUTLOCATION,"/",OUTPUTFILE2NAME)
 OUTPUTFILE3<-paste0(OUTPUTLOCATION,"/",OUTPUTFILE3NAME)
@@ -177,19 +177,27 @@ MATRIXEQTLRESULT<-Matrix_eQTL_main(DATA_GENOTYPE,
                                    pvalue.hist=FALSE,
                                    noFDRsaveMemory=SKIPFDRCALC)
 
-#Save parameters in a file.
-D1<-MATRIXEQTLRESULT$param[names(MATRIXEQTLRESULT$param)!="errorCovariance"]
-D2<-MATRIXEQTLRESULT$all[1:2]
-D3<-MATRIXEQTLRESULT$cis[1:2]
-D4<-MATRIXEQTLRESULT$trans[1:2]
-names(D2)<-c("all.ntests","all.neqtls")
-names(D3)<-c("cis.ntests","cis.neqtls")
-names(D4)<-c("trans.ntests","trans.neqtls")
-x<-c(D1,D2,D3,D4)
-PARAMETERS<-data.frame(Parameter=names(x),
-                       Value=unlist(x),
-                       stringsAsFactors=FALSE)
-write.table(PARAMETERS,OUTPUTFILE3,sep="\t",col.names=TRUE,row.names=FALSE,quote=FALSE)
+#Save information in a file.
+x<-c(MATRIXEQTLRESULT$time.in.sec,
+     MATRIXEQTLRESULT$param,
+     MATRIXEQTLRESULT$all,
+     MATRIXEQTLRESULT$cis,
+     MATRIXEQTLRESULT$trans)
+names(x)<-c(paste0("time.in.sec.",names(MATRIXEQTLRESULT$time.in.sec)),
+            paste0("param.",names(MATRIXEQTLRESULT$param)),
+            paste0("all.",names(MATRIXEQTLRESULT$all)),
+            paste0("cis.",names(MATRIXEQTLRESULT$cis)),
+            paste0("trans.",names(MATRIXEQTLRESULT$trans)))
+INFO<-data.frame(Name=rep(NA,length(x)),
+                 Value=NA)
+for(i in 1:length(x)){
+  if(length(x[[i]])==1){
+      INFO[i,1]<-names(x[i])
+      INFO[i,2]<-x[[i]]
+  }
+}
+INFO<-INFO[!is.na(INFO$Name),]
+write.table(INFO,OUTPUTFILE3,sep="\t",col.names=TRUE,row.names=FALSE,quote=FALSE)
 
 ############################################################################
 #SAVE CONTROL FILES:
