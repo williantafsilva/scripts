@@ -178,25 +178,20 @@ MATRIXEQTLRESULT<-Matrix_eQTL_main(DATA_GENOTYPE,
                                    noFDRsaveMemory=SKIPFDRCALC)
 
 #Save information in a file.
-x<-c(MATRIXEQTLRESULT$time.in.sec,
-     MATRIXEQTLRESULT$param,
-     MATRIXEQTLRESULT$all,
-     MATRIXEQTLRESULT$cis,
-     MATRIXEQTLRESULT$trans)
-names(x)<-c(paste0("time.in.sec.",names(MATRIXEQTLRESULT$time.in.sec)),
-            paste0("param.",names(MATRIXEQTLRESULT$param)),
-            paste0("all.",names(MATRIXEQTLRESULT$all)),
-            paste0("cis.",names(MATRIXEQTLRESULT$cis)),
-            paste0("trans.",names(MATRIXEQTLRESULT$trans)))
-INFO<-data.frame(Name=rep(NA,length(x)),
-                 Value=NA)
-for(i in 1:length(x)){
-  if(length(x[[i]])==1){
-      INFO[i,1]<-names(x[i])
-      INFO[i,2]<-x[[i]]
-  }
-}
-INFO<-INFO[!is.na(INFO$Name),]
+x<-c(MATRIXEQTLRESULT$time.in.sec[sapply(MATRIXEQTLRESULT$time.in.sec,length)==1],
+     MATRIXEQTLRESULT$param[sapply(MATRIXEQTLRESULT$param,length)==1],
+     MATRIXEQTLRESULT$all[sapply(MATRIXEQTLRESULT$all,length)==1],
+     MATRIXEQTLRESULT$cis[sapply(MATRIXEQTLRESULT$cis,length)==1],
+     MATRIXEQTLRESULT$trans[sapply(MATRIXEQTLRESULT$trans,length)==1])
+
+names(x)<-c(paste0("time.in.sec.",names(MATRIXEQTLRESULT$time.in.sec[sapply(MATRIXEQTLRESULT$time.in.sec,length)==1])),
+            paste0("param.",names(MATRIXEQTLRESULT$param[sapply(MATRIXEQTLRESULT$param,length)==1])),
+            paste0("all.",names(MATRIXEQTLRESULT$all[sapply(MATRIXEQTLRESULT$all,length)==1])),
+            paste0("cis.",names(MATRIXEQTLRESULT$cis[sapply(MATRIXEQTLRESULT$cis,length)==1])),
+            paste0("trans.",names(MATRIXEQTLRESULT$trans[sapply(MATRIXEQTLRESULT$trans,length)==1])))
+INFO<-data.frame(Name=names(x),
+                 Value=unlist(x))
+
 write.table(INFO,OUTPUTFILE3,sep="\t",col.names=TRUE,row.names=FALSE,quote=FALSE)
 
 ############################################################################
