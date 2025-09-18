@@ -180,15 +180,15 @@ MATRIXEQTLRESULT<-Matrix_eQTL_main(DATA_GENOTYPE,
 #Save information in a file.
 x<-c(MATRIXEQTLRESULT$time.in.sec[sapply(MATRIXEQTLRESULT$time.in.sec,length)==1],
      MATRIXEQTLRESULT$param[sapply(MATRIXEQTLRESULT$param,length)==1],
-     MATRIXEQTLRESULT$all[sapply(MATRIXEQTLRESULT$all,length)==1],
-     MATRIXEQTLRESULT$cis[sapply(MATRIXEQTLRESULT$cis,length)==1],
-     MATRIXEQTLRESULT$trans[sapply(MATRIXEQTLRESULT$trans,length)==1])
+     MATRIXEQTLRESULT$all[1:2],
+     MATRIXEQTLRESULT$cis[1:2],
+     MATRIXEQTLRESULT$trans[1:2])
 
 names(x)<-c(paste0("time.in.sec.",names(MATRIXEQTLRESULT$time.in.sec[sapply(MATRIXEQTLRESULT$time.in.sec,length)==1])),
             paste0("param.",names(MATRIXEQTLRESULT$param[sapply(MATRIXEQTLRESULT$param,length)==1])),
-            paste0("all.",names(MATRIXEQTLRESULT$all[sapply(MATRIXEQTLRESULT$all,length)==1])),
-            paste0("cis.",names(MATRIXEQTLRESULT$cis[sapply(MATRIXEQTLRESULT$cis,length)==1])),
-            paste0("trans.",names(MATRIXEQTLRESULT$trans[sapply(MATRIXEQTLRESULT$trans,length)==1])))
+            paste0("all.",names(MATRIXEQTLRESULT$all[1:2])),
+            paste0("cis.",names(MATRIXEQTLRESULT$cis[1:2])),
+            paste0("trans.",names(MATRIXEQTLRESULT$trans[1:2])))
 INFO<-data.frame(Name=names(x),
                  Value=unlist(x))
 
