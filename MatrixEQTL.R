@@ -176,8 +176,8 @@ MATRIXEQTLRESULT<-Matrix_eQTL_main(DATA_GENOTYPE,
                                    cisDist=CISDISTANCE,
                                    pvalue.hist=FALSE,
                                    noFDRsaveMemory=SKIPFDRCALC)
-unlink(OUTPUTFILE1)
-unlink(OUTPUTFILE2)
+#unlink(OUTPUTFILE1)
+#unlink(OUTPUTFILE2)
 
 #Save information in a file.
 x<-c(MATRIXEQTLRESULT$time.in.sec[sapply(MATRIXEQTLRESULT$time.in.sec,length)==1],
