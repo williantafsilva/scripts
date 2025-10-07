@@ -71,8 +71,7 @@ plot_qqplot_pvalues<-function(
       annotate(geom="text",x=-Inf,y=Inf,
                hjust=-0.15,
                vjust=1+0.15*3,
-               label=paste0(substitute(lambda==L,list(L=LAMBDA))),#sprintf("λ = %.2f",LAMBDA) #substitute(lambda==L,list(L=LAMBDA))
-               parse=TRUE,
+               label=as.vector(substitute(lambda==L,list(L=LAMBDA))),#sprintf("λ = %.2f",LAMBDA) #substitute(lambda==L,list(L=LAMBDA))
                size=5)+
       labs(x=expression("Expected -log"[10]~"(P-value)"),
            y=expression("Observed -log"[10]~"(P-value)"))+
@@ -104,8 +103,7 @@ plot_qqplot_pvalues<-function(
       annotate(geom="text",x=-Inf,y=Inf,
                hjust=-0.15,
                vjust=1+0.15*3,
-               label=paste0(substitute(lambda==L,list(L=LAMBDA))),#sprintf("λ = %.2f",LAMBDA) #substitute(lambda==L,list(L=LAMBDA))
-               parse=TRUE,
+               label=substitute(lambda==L,list(L=LAMBDA)),#sprintf("λ = %.2f",LAMBDA) #substitute(lambda==L,list(L=LAMBDA))
                size=5)+
       labs(x=expression("Expected P-value"),
            y=expression("Observed P-value"))+
