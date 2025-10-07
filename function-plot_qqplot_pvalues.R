@@ -72,6 +72,7 @@ plot_qqplot_pvalues<-function(
                hjust=-0.15,
                vjust=1+0.15*3,
                label=substitute(lambda==L,list(L=LAMBDA)),#sprintf("λ = %.2f",LAMBDA)
+               parse=TRUE,
                size=5)+
       labs(x=expression("Expected -log"[10]~"(P-value)"),
            y=expression("Observed -log"[10]~"(P-value)"))+
@@ -104,6 +105,7 @@ plot_qqplot_pvalues<-function(
                hjust=-0.15,
                vjust=1+0.15*3,
                label=substitute(lambda==L,list(L=LAMBDA)),#sprintf("λ = %.2f",LAMBDA)
+               parse=TRUE,
                size=5)+
       labs(x=expression("Expected P-value"),
            y=expression("Observed P-value"))+
