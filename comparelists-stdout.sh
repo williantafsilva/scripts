@@ -29,11 +29,11 @@ INPUTFILE2=$(readlink -f $2)
 echo -e "FILE1ONLY\tFILE2ONLY\tBOTH"
 echo -e "----------\t----------\t----------"
 #comm <(sort ${INPUTFILE1}) <(sort ${INPUTFILE2})
-paste <(paste <(comm -23 <(sort ${INPUTFILE1}) <(sort ${INPUTFILE2})) \
-<(comm -13 <(sort ${INPUTFILE1}) <(sort ${INPUTFILE2}))) \
-<(comm -12 <(sort ${INPUTFILE1}) <(sort ${INPUTFILE2}))
-NFILE1ONLY=$(comm -23 <(sort ${INPUTFILE1}) <(sort ${INPUTFILE2}) | wc -l)
-NFILE2ONLY=$(comm -13 <(sort ${INPUTFILE1}) <(sort ${INPUTFILE2}) | wc -l)
-NBOTH=$(comm -12 <(sort ${INPUTFILE1}) <(sort ${INPUTFILE2}) | wc -l)
+paste <(paste <(comm -23 <(sort $1) <(sort $2)) \
+<(comm -13 <(sort $1) <(sort $2))) \
+<(comm -12 <(sort $1) <(sort $2))
+NFILE1ONLY=$(comm -23 <(sort $1) <(sort $2) | wc -l)
+NFILE2ONLY=$(comm -13 <(sort $1) <(sort $2) | wc -l)
+NBOTH=$(comm -12 <(sort $1) <(sort $2) | wc -l)
 echo -e "----------\t----------\t----------"
 echo -e "${NFILE1ONLY}\t${NFILE2ONLY}\t${NBOTH}"
