@@ -29,9 +29,7 @@
 echo -e "FILE1ONLY\tFILE2ONLY\tBOTH"
 echo -e "----------\t----------\t----------"
 #comm <(sort ${INPUTFILE1}) <(sort ${INPUTFILE2})
-paste -d'\t' <(comm -23 <(sort $1 | uniq) <(sort $2 | uniq)) \
-<(comm -13 <(sort $1 | uniq) <(sort $2 | uniq)) \
-<(comm -12 <(sort $1 | uniq) <(sort $2 | uniq))
+paste -d'\t' <(comm -23 <(sort $1 | uniq) <(sort $2 | uniq)) <(comm -13 <(sort $1 | uniq) <(sort $2 | uniq)) <(comm -12 <(sort $1 | uniq) <(sort $2 | uniq))
 NFILE1ONLY=$(comm -23 <(sort $1 | uniq) <(sort $2 | uniq) | wc -l)
 NFILE2ONLY=$(comm -13 <(sort $1 | uniq) <(sort $2 | uniq) | wc -l)
 NBOTH=$(comm -12 <(sort $1 | uniq) <(sort $2 | uniq) | wc -l)
