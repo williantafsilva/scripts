@@ -418,18 +418,18 @@ plot_cistrans<-function(SNP_CHR=c(1:10), #Vector of SNP chromosomes.
     
     #Intra-chromosomal distance between SNP and gene center.
     p6<-ggplot(data=DATA)+
+    geom_point(data=DATA[DATA$SNP_CHR %in% CHRSET &
+                             DATA$GENE_CHR %in% CHRSET &
+                             DATA$TYPE=="Trans",],aes(x=SNPDISTGENE,y=-log2(SNP_PVALUE)),
+                 color="red",
+                 shape=18,
+                 size=1)+
       geom_point(data=DATA[DATA$SNP_CHR %in% CHRSET &
                              DATA$GENE_CHR %in% CHRSET &
                              DATA$TYPE=="Cis",],aes(x=SNPDISTGENE,y=-log2(SNP_PVALUE)),
                  color="blue",
                  shape=18,
                  size=0.5)+
-      geom_point(data=DATA[DATA$SNP_CHR %in% CHRSET &
-                             DATA$GENE_CHR %in% CHRSET &
-                             DATA$TYPE=="Trans",],aes(x=SNPDISTGENE,y=-log2(SNP_PVALUE)),
-                 color="red",
-                 shape=18,
-                 size=1)+
       labs(x=expression("Distance betwen SNP and gene center (bp)"),y=expression('-Log'[2]~'P-value'))+
       #ggtitle(expression("Distance between SNP and gene center"))+
       myggplottheme_blank+
