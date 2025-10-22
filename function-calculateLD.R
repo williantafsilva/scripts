@@ -5,17 +5,21 @@
 ############################################################################
 
 #Calculate linkage disequilibrium measurements.
-calculateLD<-function(MATRIX_GENOTYPES=data.frame(SNP=c("1:18928702","1:18928916","1:18929231","1:18929569","1:189301351","1:189301455","1:189302827","1:189303295","1:189304348","1:189304652"),
-                                                  SAMPLE1=sample(c("A/A","A/T","T/T"),10,replace=TRUE),
-                                                  SAMPLE2=sample(c("A/A","A/G","G/G"),10,replace=TRUE),
-                                                  SAMPLE3=sample(c("C/C","C/T","T/T"),10,replace=TRUE),
-                                                  SAMPLE4=sample(c("G/G","G/T","T/T"),10,replace=TRUE),
-                                                  SAMPLE5=sample(c("A/A","A/T","T/T"),10,replace=TRUE),
-                                                  SAMPLE6=sample(c("C/C","C/T","T/T"),10,replace=TRUE),
-                                                  SAMPLE7=sample(c("C/C","C/G","G/G"),10,replace=TRUE),
-                                                  SAMPLE8=sample(c("A/A","A/G","G/G"),10,replace=TRUE),
-                                                  SAMPLE9=sample(c("A/A","A/T","T/T"),10,replace=TRUE),
-                                                  SAMPLE10=sample(c("A/A","A/C","C/C"),10,replace=TRUE)), #Data frame with biallelic genotypes (first column is SNP ID, other columns are samples).
+calculateLD<-function(MATRIX_GENOTYPES=cbind(data.frame(SNP=c("1:18928702","1:18928916","1:18929231","1:18929569","1:189301351","1:189301455","1:189302827","1:189303295","1:189304348","1:189304652")),
+                                             data.frame(t(matrix(c(
+                                               sample(c("A/A","A/T","T/T"),10,replace=TRUE),
+                                               sample(c("A/A","A/G","G/G"),10,replace=TRUE),
+                                               sample(c("C/C","C/T","T/T"),10,replace=TRUE),
+                                               sample(c("G/G","G/T","T/T"),10,replace=TRUE),
+                                               sample(c("A/A","A/T","T/T"),10,replace=TRUE),
+                                               sample(c("C/C","C/T","T/T"),10,replace=TRUE),
+                                               sample(c("C/C","C/G","G/G"),10,replace=TRUE),
+                                               sample(c("A/A","A/G","G/G"),10,replace=TRUE),
+                                               sample(c("A/A","A/T","T/T"),10,replace=TRUE),
+                                               sample(c("A/A","A/C","C/C"),10,replace=TRUE)),
+                                               nrow=10,ncol=10,
+                                               dimnames=list(paste0("SAMPLE",1:10),
+                                                             NULL))))), #Data frame with biallelic genotypes (first column is SNP ID, other columns are samples).
                       SNP1="1:18929231",
                       SNP2="1:189303295",
                       GENOTYPEFORMAT="TGT"){ #Format of genotypes: TGT (translated genotypes, e.g., "A/T", "G|T"), GT (reference/alternative allele format, e.g., "0/1", "1/1"), NUM (numeric format, e.g., 0, 1, 2).
