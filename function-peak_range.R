@@ -16,7 +16,7 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
   #1. Find peak position (lowest p-value).
   #2. Set local peak p-value threshold (e.g., 0.01 = two orders of magnitude below local peak) to limit local peak height.
   #3. DistanceFromPeak: Find the farthest significant points (below local peak p-value threshold) within the defined 
-  #distance from local peak. This method limits the extension of the region, without limiting the gap between adjacent significant points..
+  #distance from local peak. This method limits the extension of the region, without limiting the gap between adjacent significant points.
   #3. AdjacentPoints: Find the farthest significant points (below local peak p-value threshold) upstream/downstream 
   #the last picked point upstream/downstream the local peak. This method limits the gap between adjacent significant points, not 
   #the extension of the total regions.
