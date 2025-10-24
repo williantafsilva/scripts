@@ -17,6 +17,7 @@ plot_qqplot_pvalues<-function(
   library(ggplot2)
   library(tidyverse)
   library(gtools)
+  library(latex2exp)
   
   #Plot theme.
   myggplottheme<-theme(title=element_text(size=10,face="bold"),
@@ -60,19 +61,23 @@ plot_qqplot_pvalues<-function(
     p<-ggplot(DATA)+
       geom_ribbon(mapping=aes(x=Expected,ymin=CI_lower,ymax=CI_upper),
                   alpha=0.1)+
-      geom_segment(aes(x=0,y=-log10(SIGTHRESHOLD),xend=-log10(SIGTHRESHOLD),yend=-log10(SIGTHRESHOLD)),
-                   color="red",linetype=3,linewidth=0.5,alpha=0.5)+
-      geom_segment(aes(x=-log10(SIGTHRESHOLD),y=0,xend=-log10(SIGTHRESHOLD),yend=-log10(SIGTHRESHOLD)),
-                   color="red",linetype=3,linewidth=0.5,alpha=0.5)+
+      annotate("segment",
+               x=0,y=-log10(SIGTHRESHOLD),xend=-log10(SIGTHRESHOLD),yend=-log10(SIGTHRESHOLD),
+               color="red",linetype=3,linewidth=0.5,alpha=0.5)+
+      annotate("segment",
+               x=-log10(SIGTHRESHOLD),y=0,xend=-log10(SIGTHRESHOLD),yend=-log10(SIGTHRESHOLD),
+               color="red",linetype=3,linewidth=0.5,alpha=0.5)+
+      #geom_segment(aes(x=0,y=-log10(SIGTHRESHOLD),xend=-log10(SIGTHRESHOLD),yend=-log10(SIGTHRESHOLD)),
+      #             color="red",linetype=3,linewidth=0.5,alpha=0.5)+
+      #geom_segment(aes(x=-log10(SIGTHRESHOLD),y=0,xend=-log10(SIGTHRESHOLD),yend=-log10(SIGTHRESHOLD)),
+      #             color="red",linetype=3,linewidth=0.5,alpha=0.5)+
       geom_point(aes(Expected,Observed),shape=16,size=1)+
       geom_abline(intercept=0,slope=1,color="blue",alpha=0.5)+
       geom_line(aes(Expected,CI_upper),linetype=3,linewidth=0.5)+
       geom_line(aes(Expected,CI_lower),linetype=3,linewidth=0.5)+
-      annotate(geom="text",x=-Inf,y=Inf,
-               hjust=-0.15,
-               vjust=1+0.15*3,
-               label=as.vector(substitute(lambda==L,list(L=LAMBDA))),#sprintf("λ = %.2f",LAMBDA) #substitute(lambda==L,list(L=LAMBDA))
-               size=5)+
+      annotate("text",x=-Inf,y=Inf,hjust=-0.15,vjust=1+0.15*3,size=5,
+               label=latex2exp::TeX(paste0("$\\lambda = $",LAMBDA),output="character"),#as.vector(substitute(lambda==L,list(L=LAMBDA))),#paste0("λ = ",LAMBDA))+#sprintf("λ = %.2f",LAMBDA) #substitute(lambda==L,list(L=LAMBDA)))+
+               parse=TRUE)+
       labs(x=expression("Expected -log"[10]~"(P-value)"),
            y=expression("Observed -log"[10]~"(P-value)"))+
       ggtitle(PLOTTITLE)+
@@ -92,19 +97,23 @@ plot_qqplot_pvalues<-function(
     p<-ggplot(DATA)+
       geom_ribbon(mapping=aes(x=Expected,ymin=CI_lower,ymax=CI_upper),
                   alpha=0.1)+
-      geom_segment(aes(x=0,y=SIGTHRESHOLD,xend=SIGTHRESHOLD,yend=SIGTHRESHOLD),
-                   color="red",linetype=3,linewidth=0.5,alpha=0.5)+
-      geom_segment(aes(x=SIGTHRESHOLD,y=0,xend=SIGTHRESHOLD,yend=SIGTHRESHOLD),
-                   color="red",linetype=3,linewidth=0.5,alpha=0.5)+
+      annotate("segment",
+               x=0,y=-log10(SIGTHRESHOLD),xend=-log10(SIGTHRESHOLD),yend=-log10(SIGTHRESHOLD),
+               color="red",linetype=3,linewidth=0.5,alpha=0.5)+
+      annotate("segment",
+               x=-log10(SIGTHRESHOLD),y=0,xend=-log10(SIGTHRESHOLD),yend=-log10(SIGTHRESHOLD),
+               color="red",linetype=3,linewidth=0.5,alpha=0.5)+
+      #geom_segment(aes(x=0,y=SIGTHRESHOLD,xend=SIGTHRESHOLD,yend=SIGTHRESHOLD),
+      #             color="red",linetype=3,linewidth=0.5,alpha=0.5)+
+      #geom_segment(aes(x=SIGTHRESHOLD,y=0,xend=SIGTHRESHOLD,yend=SIGTHRESHOLD),
+      #             color="red",linetype=3,linewidth=0.5,alpha=0.5)+
       geom_point(aes(Expected,Observed),shape=16,size=1)+
       geom_abline(intercept=0,slope=1,color="blue",alpha=0.5)+
       geom_line(aes(Expected,CI_upper),linetype=3,linewidth=0.5)+
       geom_line(aes(Expected,CI_lower),linetype=3,linewidth=0.5)+
-      annotate(geom="text",x=-Inf,y=Inf,
-               hjust=-0.15,
-               vjust=1+0.15*3,
-               label=substitute(lambda==L,list(L=LAMBDA)),#sprintf("λ = %.2f",LAMBDA) #substitute(lambda==L,list(L=LAMBDA))
-               size=5)+
+      annotate("text",x=-Inf,y=Inf,hjust=-0.15,vjust=1+0.15*3,size=5,
+               label=latex2exp::TeX(paste0("$\\lambda = $",LAMBDA),output="character"),#as.vector(substitute(lambda==L,list(L=LAMBDA))),#paste0("λ = ",LAMBDA))+#sprintf("λ = %.2f",LAMBDA) #substitute(lambda==L,list(L=LAMBDA)))+
+               parse=TRUE)+
       labs(x=expression("Expected P-value"),
            y=expression("Observed P-value"))+
       ggtitle(PLOTTITLE)+
