@@ -100,36 +100,36 @@ plot_genotype_phenotype<-function(MATRIX_GENOTYPES, #Data frame of genotypes wit
   }
   
   #Create data frame with genotypes and phenotypes.
-  DATA_GENOTYPE_PHENOTYPE<-data.frame(SNP=NA,
-                                      PHENOTYPE=NA,
-                                      SAMPLE=NA,
-                                      GENOTYPE=NA,
-                                      PHENOTYPEVALUE=NA)
+  DATA_GENOTYPE_PHENOTYPE<-data.frame(SNP_ID=NA,
+                                      Phenotype=NA,
+                                      Sample=NA,
+                                      Genotype=NA,
+                                      PhenotypeValue=NA)
   
   for(i in 1:nrow(SNP_PHENOTYPE)){
-    TMP<-data.frame(SNP=SNP_PHENOTYPE$SNP_ID[i],
-                    PHENOTYPE=SNP_PHENOTYPE$PHENOTYPE_ID[i],
-                    SAMPLE=colnames(DATA_GENOTYPES)[2:ncol(DATA_GENOTYPES)],
-                    GENOTYPE=unname(unlist(DATA_GENOTYPES[
+    TMP<-data.frame(SNP_ID=SNP_PHENOTYPE$SNP_ID[i],
+                    Phenotype=SNP_PHENOTYPE$PHENOTYPE_ID[i],
+                    Sample=colnames(DATA_GENOTYPES)[2:ncol(DATA_GENOTYPES)],
+                    Genotype=unname(unlist(DATA_GENOTYPES[
                       DATA_GENOTYPES[,1]==SNP_PHENOTYPE$SNP_ID[i],
                       2:ncol(DATA_GENOTYPES)])),
-                    PHENOTYPEVALUE=as.numeric(unname(unlist(DATA_PHENOTYPES[
+                    PhenotypeValue=as.numeric(unname(unlist(DATA_PHENOTYPES[
                       DATA_PHENOTYPES[,1]==SNP_PHENOTYPE$PHENOTYPE_ID[i],
                       2:ncol(DATA_PHENOTYPES)]))))
     DATA_GENOTYPE_PHENOTYPE<-rbind(DATA_GENOTYPE_PHENOTYPE,TMP)
   }
-  DATA_GENOTYPE_PHENOTYPE<-DATA_GENOTYPE_PHENOTYPE[!is.na(DATA_GENOTYPE_PHENOTYPE$SNP),]
+  DATA_GENOTYPE_PHENOTYPE<-DATA_GENOTYPE_PHENOTYPE[!is.na(DATA_GENOTYPE_PHENOTYPE$SNP_ID),]
   
   #Create plot.
   p.genxphen<-DATA_GENOTYPE_PHENOTYPE %>%
-    ggplot(aes(x=GENOTYPE,y=PHENOTYPEVALUE))+ 
+    ggplot(aes(x=Genotype,y=PhenotypeValue))+ 
     geom_jitter(color="black",shape=20,size=0.2,
                 height=0,width=0.3)+
-    geom_boxplot(aes(fill=GENOTYPE),
+    geom_boxplot(aes(fill=Genotype),
                  width=0.5,color="black",alpha=0.7,
                  outlier.color="black",outlier.shape=20,outlier.size=0.2)+
     labs(x=XLABEL,y=YLABEL)+
-    facet_wrap(~SNP+PHENOTYPE,
+    facet_wrap(~SNP_ID+Phenotype,
                nrow=floor(sqrt(nrow(SNP_PHENOTYPE))),
                scales="free")+
     ggtitle(PLOTTITLE)+
@@ -234,34 +234,34 @@ plot_genotype_phenotype_pair<-function(MATRIX_GENOTYPES, #Data frame of genotype
   }
   
   #Create data frame with genotypes and phenotypes.
-  DATA_GENOTYPE_PHENOTYPE<-data.frame(SNP=NA,
-                                      PHENOTYPE=NA,
-                                      SAMPLE=NA,
-                                      GENOTYPE=NA,
-                                      PHENOTYPEVALUE=NA)
+  DATA_GENOTYPE_PHENOTYPE<-data.frame(SNP_ID=NA,
+                                      Phenotype=NA,
+                                      Sample=NA,
+                                      Genotype=NA,
+                                      PhenotypeValue=NA)
   
   for(i in 1:nrow(DATA_PHENOTYPES)){
-    TMP<-data.frame(SNP=DATA_PHENOTYPES$SNP_ID[i],
-                    PHENOTYPE=DATA_PHENOTYPES$PHENOTYPE_ID[i],
-                    SAMPLE=colnames(DATA_GENOTYPES)[2:ncol(DATA_GENOTYPES)],
-                    GENOTYPE=unname(unlist(DATA_GENOTYPES[
+    TMP<-data.frame(SNP_ID=DATA_PHENOTYPES$SNP_ID[i],
+                    Phenotype=DATA_PHENOTYPES$PHENOTYPE_ID[i],
+                    Sample=colnames(DATA_GENOTYPES)[2:ncol(DATA_GENOTYPES)],
+                    Genotype=unname(unlist(DATA_GENOTYPES[
                       DATA_GENOTYPES[,1]==DATA_PHENOTYPES$SNP_ID[i],
                       2:ncol(DATA_GENOTYPES)])),
-                    PHENOTYPEVALUE=as.numeric(unname(unlist(DATA_PHENOTYPES[i,3:ncol(DATA_PHENOTYPES)]))))
+                    PhenotypeValue=as.numeric(unname(unlist(DATA_PHENOTYPES[i,3:ncol(DATA_PHENOTYPES)]))))
     DATA_GENOTYPE_PHENOTYPE<-rbind(DATA_GENOTYPE_PHENOTYPE,TMP)
   }
-  DATA_GENOTYPE_PHENOTYPE<-DATA_GENOTYPE_PHENOTYPE[!is.na(DATA_GENOTYPE_PHENOTYPE$SNP),]
+  DATA_GENOTYPE_PHENOTYPE<-DATA_GENOTYPE_PHENOTYPE[!is.na(DATA_GENOTYPE_PHENOTYPE$SNP_ID),]
   
   #Create plot.
   p.genxphen<-DATA_GENOTYPE_PHENOTYPE %>%
-    ggplot(aes(x=GENOTYPE,y=PHENOTYPEVALUE))+ 
+    ggplot(aes(x=Genotype,y=PhenotypeValue))+ 
     geom_jitter(color="black",shape=20,size=0.2,
                 height=0,width=0.3)+
-    geom_boxplot(aes(fill=GENOTYPE),
+    geom_boxplot(aes(fill=Genotype),
                  width=0.5,color="black",alpha=0.7,
                  outlier.color="black",outlier.shape=20,outlier.size=0.2)+
     labs(x=XLABEL,y=YLABEL)+
-    facet_wrap(~SNP+PHENOTYPE,
+    facet_wrap(~SNP_ID+Phenotype,
                nrow=floor(sqrt(nrow(DATA_PHENOTYPES))),
                scales="free")+
     ggtitle(PLOTTITLE)+
