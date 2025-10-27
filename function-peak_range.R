@@ -42,7 +42,8 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
                      RegionStart=NA,
                      RegionEnd=NA,
                      NPeaks=NA,
-                     NSignificant=NA)
+                     NSignificant=NA,
+                     OtherPeaks=NA)
   
   for(C in unique(INPUTDATA$Chromosome)){
     
@@ -159,14 +160,15 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
         filter(!is.na(Chromosome)) %>%
         arrange(RegionStart) %>% 
         group_by(Index=cumsum(cummax(lag(RegionEnd+MINGAPSIZE/2,default=data.table::first(RegionEnd+MINGAPSIZE/2)))<RegionStart-MINGAPSIZE/2)) %>% 
-        dplyr::summarise(RegionStart=min(RegionStart),
+        dplyr::summarise(OtherPeaks=paste0(Chromosome,":",PeakPosition,collapse=","),
+                         RegionStart=min(RegionStart),
                          RegionEnd=max(RegionEnd),
                          PeakPosition=PeakPosition[PeakPvalue==min(PeakPvalue)],
                          PeakPvalue=min(PeakPvalue),
                          NPeaks=n()) %>%
         mutate(Chromosome=C) %>%
         as.data.frame
-      OUTPUT_CHRC<-OUTPUT_CHRC[,c("Chromosome","PeakPosition","PeakPvalue","RegionStart","RegionEnd","NPeaks")]
+      OUTPUT_CHRC<-OUTPUT_CHRC[,c("Chromosome","PeakPosition","PeakPvalue","RegionStart","RegionEnd","NPeaks","OtherPeaks")]
       
       #Get number of significant points per region.
       DATA_CHRC<-INPUTDATA[INPUTDATA$Chromosome==C & INPUTDATA$Pvalue<=SIGTHRESHOLD,]
