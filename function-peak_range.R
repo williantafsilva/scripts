@@ -172,17 +172,10 @@ peak_range<-function(CHRVECTOR, #Vector of chromosomes.
       
       #Get number of significant points per region.
       DATA_CHRC<-INPUTDATA[INPUTDATA$Chromosome==C & INPUTDATA$Pvalue<=SIGTHRESHOLD,]
-      #DATA_CHRC<-INPUTDATA %>% 
-      #  filter(Chromosome==C,
-      #         Pvalue<=SIGTHRESHOLD)
       OUTPUT_CHRC$NSignificant<-NA
       for(i in 1:nrow(OUTPUT_CHRC)){
         OUTPUT_CHRC$NSignificant[i]<-DATA_CHRC[DATA_CHRC$Position>=OUTPUT_CHRC$RegionStart[i] & DATA_CHRC$Position<=OUTPUT_CHRC$RegionEnd[i],] %>%
           nrow()
-        #OUTPUT_CHRC$NSignificant[i]<-DATA_CHRC %>%
-        #  filter(Position>=OUTPUT_CHRC$RegionStart[i],
-        #         Position<=OUTPUT_CHRC$RegionEnd[i]) %>%
-        #  nrow()
       }
       
       #Save ranges.
