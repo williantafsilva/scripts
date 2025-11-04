@@ -121,6 +121,19 @@ plot_rainbowcolors<-function(ncolors=50){
    }
 }
 
+plot_text<-function(INPUTTEXT){
+  
+  library(RGraphics)
+  library(gridExtra)
+  
+  #TEXTPLOT<-as_ggplot(grid.arrange(splitTextGrob(INPUTTEXT),ncol=1))
+  TEXTGROB<-text_grob(INPUTTEXT,
+                      face="italic",color="black",size=12)
+  TEXTPLOT<-as_ggplot(TEXTGROB)
+  return(TEXTPLOT)
+
+}
+
 ############################################################################
 #Greek letters and mathematical symbols (plots).
 
