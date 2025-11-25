@@ -90,8 +90,10 @@ if(ARGS[8]==TRUE){
 
 OUTPUTFILE1NAME<-paste0("matrixeqtl-transeqtl-",OUTPUTNAMESTRING,"-job",JOBID,".txt")
 OUTPUTFILE2NAME<-paste0("matrixeqtl-ciseqtl-",OUTPUTNAMESTRING,"-job",JOBID,".txt")
+OUTPUTFILE3NAME<-paste0("matrixeqtl-info-",OUTPUTNAMESTRING,"-job",JOBID,".txt")
 OUTPUTFILE1<-paste0(OUTPUTLOCATION,"/",OUTPUTFILE1NAME)
 OUTPUTFILE2<-paste0(OUTPUTLOCATION,"/",OUTPUTFILE2NAME)
+OUTPUTFILE3<-paste0(OUTPUTLOCATION,"/",OUTPUTFILE3NAME)
 
 ############################################################################
 #ACTIONS:
@@ -174,6 +176,25 @@ MATRIXEQTLRESULT<-Matrix_eQTL_main(DATA_GENOTYPE,
                                    cisDist=CISDISTANCE,
                                    pvalue.hist=FALSE,
                                    noFDRsaveMemory=SKIPFDRCALC)
+#unlink(OUTPUTFILE1)
+#unlink(OUTPUTFILE2)
+
+#Save information in a file.
+x<-c(MATRIXEQTLRESULT$time.in.sec[sapply(MATRIXEQTLRESULT$time.in.sec,length)==1],
+     MATRIXEQTLRESULT$param[sapply(MATRIXEQTLRESULT$param,length)==1],
+     MATRIXEQTLRESULT$all[sapply(MATRIXEQTLRESULT$all,length)==1],
+     MATRIXEQTLRESULT$cis[sapply(MATRIXEQTLRESULT$cis,length)==1],
+     MATRIXEQTLRESULT$trans[sapply(MATRIXEQTLRESULT$trans,length)==1])
+
+names(x)<-c(paste0("time.in.sec.",names(MATRIXEQTLRESULT$time.in.sec[sapply(MATRIXEQTLRESULT$time.in.sec,length)==1])),
+            paste0("param.",names(MATRIXEQTLRESULT$param[sapply(MATRIXEQTLRESULT$param,length)==1])),
+            paste0("all.",names(MATRIXEQTLRESULT$all[sapply(MATRIXEQTLRESULT$all,length)==1])),
+            paste0("cis.",names(MATRIXEQTLRESULT$cis[sapply(MATRIXEQTLRESULT$cis,length)==1])),
+            paste0("trans.",names(MATRIXEQTLRESULT$trans[sapply(MATRIXEQTLRESULT$trans,length)==1])))
+INFO<-data.frame(Name=names(x),
+                 Value=unlist(x))
+
+write.table(INFO,OUTPUTFILE3,sep="\t",col.names=TRUE,row.names=FALSE,quote=FALSE)
 
 ############################################################################
 #SAVE CONTROL FILES:
@@ -189,6 +210,7 @@ Input snp location file: ",FILE_SNPLOCATION,"
 Input gene location file: ",FILE_GENELOCATION,"
 Input FDR request: ",ARGS[8],"
 Output file: ",OUTPUTFILE2,"
+Output file: ",OUTPUTFILE3,"
 
 "),file=paste0(OUTPUTLOCATION,"/README.txt"),append=TRUE)
 
