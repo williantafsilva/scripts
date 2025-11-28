@@ -110,11 +110,11 @@ MODEL<-modelLINEAR #Set model.
 #Note that for larger datasets the threshold should be lower. Setting the threshold to a high 
 #value for a large dataset may cause excessively large output files.
 if(ARGS[8]==TRUE){
-  PTHRESHOLD.TRANS<-1e-5 #1e-2
-  PTHRESHOLD.CIS<-1e-5 #1e-2
+  PTHRESHOLD.TRANS<-1e-2 #1e-2
+  PTHRESHOLD.CIS<-1e-2 #1e-2
 }else{
-  PTHRESHOLD.TRANS<-1e-5 #1e-2
-  PTHRESHOLD.CIS<-1e-5 #1e-2
+  PTHRESHOLD.TRANS<-1e-2 #1e-2
+  PTHRESHOLD.CIS<-1e-2 #1e-2
 }
 
 #Define the covariance matrix for the error term. This parameter is rarely used. 
@@ -176,23 +176,28 @@ MATRIXEQTLRESULT<-Matrix_eQTL_main(DATA_GENOTYPE,
                                    cisDist=CISDISTANCE,
                                    pvalue.hist=FALSE,
                                    noFDRsaveMemory=SKIPFDRCALC)
-#unlink(OUTPUTFILE1)
-#unlink(OUTPUTFILE2)
 
 #Save information in a file.
-x<-c(MATRIXEQTLRESULT$time.in.sec[sapply(MATRIXEQTLRESULT$time.in.sec,length)==1],
-     MATRIXEQTLRESULT$param[sapply(MATRIXEQTLRESULT$param,length)==1],
-     MATRIXEQTLRESULT$all[sapply(MATRIXEQTLRESULT$all,length)==1],
-     MATRIXEQTLRESULT$cis[sapply(MATRIXEQTLRESULT$cis,length)==1],
-     MATRIXEQTLRESULT$trans[sapply(MATRIXEQTLRESULT$trans,length)==1])
-
-names(x)<-c(paste0("time.in.sec.",names(MATRIXEQTLRESULT$time.in.sec[sapply(MATRIXEQTLRESULT$time.in.sec,length)==1])),
-            paste0("param.",names(MATRIXEQTLRESULT$param[sapply(MATRIXEQTLRESULT$param,length)==1])),
-            paste0("all.",names(MATRIXEQTLRESULT$all[sapply(MATRIXEQTLRESULT$all,length)==1])),
-            paste0("cis.",names(MATRIXEQTLRESULT$cis[sapply(MATRIXEQTLRESULT$cis,length)==1])),
-            paste0("trans.",names(MATRIXEQTLRESULT$trans[sapply(MATRIXEQTLRESULT$trans,length)==1])))
-INFO<-data.frame(Name=names(x),
-                 Value=unlist(x))
+INFO<-data.frame(Name=c("time.in.sec",
+                        "param$pvOutputThreshold",
+                        "param$pvOutputThreshold.cis",
+                        "param$cisDist",
+                        "all$ntests",
+                        "all$neqtls",
+                        "trans$ntests",
+                        "trans$neqtls",
+                        "cis$ntests",
+                        "cis$neqtls"),
+                 Value=c(unlist(MATRIXEQTLRESULT$time.in.sec[[1]]),
+                         unlist(MATRIXEQTLRESULT$param$pvOutputThreshold[[1]]),
+                         unlist(MATRIXEQTLRESULT$param$pvOutputThreshold.cis[[1]]),
+                         unlist(MATRIXEQTLRESULT$param$cisDist[[1]]),
+                         unlist(MATRIXEQTLRESULT$all$ntests[[1]]),
+                         unlist(MATRIXEQTLRESULT$all$neqtls[[1]]),
+                         unlist(MATRIXEQTLRESULT$trans$ntests[[1]]),
+                         unlist(MATRIXEQTLRESULT$trans$neqtls[[1]]),
+                         unlist(MATRIXEQTLRESULT$cis$ntests[[1]]),
+                         unlist(MATRIXEQTLRESULT$cis$neqtls[[1]])))
 
 write.table(INFO,OUTPUTFILE3,sep="\t",col.names=TRUE,row.names=FALSE,quote=FALSE)
 
