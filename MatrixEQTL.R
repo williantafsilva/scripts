@@ -110,11 +110,11 @@ MODEL<-modelLINEAR #Set model.
 #Note that for larger datasets the threshold should be lower. Setting the threshold to a high 
 #value for a large dataset may cause excessively large output files.
 if(ARGS[8]==TRUE){
-  PTHRESHOLD.TRANS<-1e-2 #1e-2
-  PTHRESHOLD.CIS<-1e-2 #1e-2
+  PTHRESHOLD.TRANS<-1e-3 #1e-2
+  PTHRESHOLD.CIS<-1e-3 #1e-2
 }else{
-  PTHRESHOLD.TRANS<-1e-2 #1e-2
-  PTHRESHOLD.CIS<-1e-2 #1e-2
+  PTHRESHOLD.TRANS<-1e-3 #1e-2
+  PTHRESHOLD.CIS<-1e-3 #1e-2
 }
 
 #Define the covariance matrix for the error term. This parameter is rarely used. 
