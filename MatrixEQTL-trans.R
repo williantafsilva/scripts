@@ -110,10 +110,10 @@ MODEL<-modelLINEAR #Set model.
 #Note that for larger datasets the threshold should be lower. Setting the threshold to a high 
 #value for a large dataset may cause excessively large output files.
 if(ARGS[8]==TRUE){
-  PTHRESHOLD.TRANS<-1e-5
+  PTHRESHOLD.TRANS<-1e-3
   PTHRESHOLD.CIS<-0
 }else{
-  PTHRESHOLD.TRANS<-1e-5
+  PTHRESHOLD.TRANS<-1e-3
   PTHRESHOLD.CIS<-0
 }
 
