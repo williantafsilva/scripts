@@ -124,7 +124,7 @@ END {
 awk 'NR==1 {print $0 "\tPvalueFDR"}' "${INPUTFILE}" > ${OUTPUTFILE}
 
 #Save data.
-cat "${TMP}" > ${OUTPUTFILE}
+cat "${TMP}" >> ${OUTPUTFILE}
 
 ############################################################################
 ##SAVE CONTROL FILES:
