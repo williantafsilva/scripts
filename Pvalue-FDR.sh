@@ -94,7 +94,7 @@ trap 'rm -f "${TMP}"' EXIT
 #Process data.
 tail -n +2 "${INPUTFILE}" \
 | awk -v PCOL="${PVALUECOLUMNINDEX}" 'BEGIN{OFS="\t"} {print NR, $PCOL, $0}' \
-| sort -k2,2g \
+| sort -g -k2,2 \
 | awk -v NTESTS="${NTESTS}" 'BEGIN{OFS="\t"}
 {
     rank = NR #BH rank (1 = smallest p-value).
