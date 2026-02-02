@@ -97,23 +97,24 @@ tail -n +2 "${INPUTFILE}" \
 | sort -k2,2g \
 | awk -v NTESTS="${NTESTS}" 'BEGIN{OFS="\t"}
 {
-    rank = NR
-    idx[rank] = $1
-    line[rank] = substr($0, index($0,$3))
-    bh[rank] = $2 * NTESTS / rank
+    rank = NR #BH rank (1 = smallest p-value).
+    idx[rank] = $1 #Map rank -> original row index.
+    line[rank] = substr($0, index($0,$3)) #Store original line (everything from column 3 onward).
+    bh[rank] = $2 * NTESTS / rank #Benjamini–Hochberg formula.
 }
 END {
-    #Enforce monotonicity.
+    #Enforce monotonicity. Adjusted p-values must be non-decreasing.
     for (i = NR - 1; i >= 1; i--) {
         if (bh[i] > bh[i + 1])
             bh[i] = bh[i + 1]
     }
 
-    #Cap at 1 and restore original order.
+    #Cap FDR p-values at 1 and restore original order.
     for (i = 1; i <= NR; i++) {
         adj[idx[i]] = (bh[i] > 1 ? 1 : bh[i])
     }
 
+    #Print lines in original order with appended FDR value.
     for (i = 1; i <= NR; i++) {
         printf "%s\t%.10g\n", line[i], adj[i]
     }
