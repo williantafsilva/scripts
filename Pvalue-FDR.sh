@@ -93,7 +93,7 @@ trap 'rm -f "${TMP}"' EXIT
 
 #Process data.
 tail -n +2 "${INPUTFILE}" \
-| awk -v PCOL="${PVALUECOLUMNINDEX}" 'BEGIN{OFS="\t"} {print NR, ${PCOL}, $0}' \
+| awk -v PCOL="${PVALUECOLUMNINDEX}" 'BEGIN{OFS="\t"} {print NR, $PCOL, $0}' \
 | sort -k2,2g \
 | awk -v NTESTS="${NTESTS}" 'BEGIN{OFS="\t"}
 {
