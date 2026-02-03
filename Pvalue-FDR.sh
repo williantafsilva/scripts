@@ -89,42 +89,74 @@ OUTPUTFILE=$(echo "${OUTPUTLOCATION}/${OUTPUTFILENAME}")
 TMP=$(mktemp)
 
 #Delete temporary file on exit (normal or error).
-trap 'rm -f "${TMP}"' EXIT
+#trap 'rm -f "${TMP}"' EXIT
 
 #Process data.
-tail -n +2 "${INPUTFILE}" \
-| awk -v PCOL="${PVALUECOLUMNINDEX}" 'BEGIN{OFS="\t"} {print NR, $PCOL, $0}' \
-| sort -g -k2,2 \
-| awk -v NTESTS="${NTESTS}" 'BEGIN{OFS="\t"}
+#tail -n +2 "${INPUTFILE}" \
+#| awk -v PCOL="${PVALUECOLUMNINDEX}" 'BEGIN{OFS="\t"} {print NR, $PCOL, $0}' \
+#| sort -g -k2,2 \
+#| awk -v NTESTS="${NTESTS}" 'BEGIN{OFS="\t"}
+#{
+#    rank = NR #BH rank (1 = smallest p-value).
+#    idx[rank] = $1 #Map rank -> original row index.
+#    line[rank] = substr($0, index($0,$3)) #Store original line (everything from column 3 onward).
+#    bh[rank] = $2 * NTESTS / rank #Benjamini–Hochberg formula.
+#}
+#END {
+#    #Enforce monotonicity. Adjusted p-values must be non-decreasing.
+#    for (i = NR - 1; i >= 1; i--) {
+#        if (bh[i] > bh[i + 1])
+#            bh[i] = bh[i + 1]
+#    }
+#
+#    #Cap FDR p-values at 1 and restore original order.
+#    for (i = 1; i <= NR; i++) {
+#        adj[idx[i]] = (bh[i] > 1 ? 1 : bh[i])
+#    }
+#
+#    #Print lines in original order with appended FDR value.
+#    for (i = 1; i <= NR; i++) {
+#        printf "%s\t%.10g\n", line[i], adj[i]
+#    }
+#}' > "${TMP}"
+#
+##Save header.
+#awk 'NR==1 {print $0 "\tPvalueFDR"}' "${INPUTFILE}" > ${OUTPUTFILE}
+#
+##Save data.
+#cat "${TMP}" >> ${OUTPUTFILE}
+
+cat ${INPUTFILE} | cut -f ${PVALUECOLUMNINDEX} \
+| awk -v OFS='\t' 'NR==1 { print $0, "OriginalOrder"; next } { print $0, NR-1 }' \
+| tail -n+2 \
+| sort -g -k1,1 \
+| awk -v OFS='\t' '{ print $0, NR }' \
+| awk -v OFS='\t' -v NTESTS=${NTESTS} '
 {
-    rank = NR #BH rank (1 = smallest p-value).
-    idx[rank] = $1 #Map rank -> original row index.
-    line[rank] = substr($0, index($0,$3)) #Store original line (everything from column 3 onward).
-    bh[rank] = $2 * NTESTS / rank #Benjamini–Hochberg formula.
+    p[NR] = $1
+    rank[NR] = $3
+    line[NR] = $0
+    q[NR] = p[NR] * NTESTS / rank[NR]
 }
 END {
-    #Enforce monotonicity. Adjusted p-values must be non-decreasing.
+    #Enforce monotonicity from bottom to top.
     for (i = NR - 1; i >= 1; i--) {
-        if (bh[i] > bh[i + 1])
-            bh[i] = bh[i + 1]
+        if (q[i] > q[i+1])
+            q[i] = q[i+1]
     }
 
-    #Cap FDR p-values at 1 and restore original order.
+    #Print results.
     for (i = 1; i <= NR; i++) {
-        adj[idx[i]] = (bh[i] > 1 ? 1 : bh[i])
+        if (q[i] > 1) q[i] = 1
+        print line[i], q[i]
     }
-
-    #Print lines in original order with appended FDR value.
-    for (i = 1; i <= NR; i++) {
-        printf "%s\t%.10g\n", line[i], adj[i]
-    }
-}' > "${TMP}"
-
-#Save header.
-awk 'NR==1 {print $0 "\tPvalueFDR"}' "${INPUTFILE}" > ${OUTPUTFILE}
+}
+' \
+| sort -g -k2,2 \
+| sed '1ip-value\tOriginalOrder\tAscendingOrder\tPvalueFDR' > ${TMP}
 
 #Save data.
-cat "${TMP}" >> ${OUTPUTFILE}
+paste ${INPUTFILE} <(cut -f4 ${TMP}) > ${OUTPUTFILE}
 
 ############################################################################
 ##SAVE CONTROL FILES:
