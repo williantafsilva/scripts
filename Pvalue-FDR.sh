@@ -89,7 +89,7 @@ OUTPUTFILE=$(echo "${OUTPUTLOCATION}/${OUTPUTFILENAME}")
 TMP=$(mktemp)
 
 #Delete temporary file on exit (normal or error).
-#trap 'rm -f "${TMP}"' EXIT
+trap 'rm -f "${TMP}"' EXIT
 
 #Process data.
 #tail -n +2 "${INPUTFILE}" \
