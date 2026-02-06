@@ -82,15 +82,18 @@ OUTPUTFILEPREFIX=$(echo ${INPUTFILENAME} | sed 's/\.txt.*$//' | sed 's/-job[0-9]
 OUTPUTFILENAME=$(echo "${OUTPUTFILEPREFIX}.PvalueFDR-job${JOBID}.txt") 
 OUTPUTFILE=$(echo "${OUTPUTLOCATION}/${OUTPUTFILENAME}") 
 
+#Create a temporary file.
+TMP=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.PvalueFDR-tmp-job${JOBID}.txt") 
+
 ############################################################################
 ##ACTIONS:
 
-#Create a temporary file.
-TMP=$(mktemp)
-
-#Delete temporary file on exit (normal or error).
-trap 'rm -f "${TMP}"' EXIT
-
+##Create a temporary file.
+#TMP=$(mktemp)
+#
+##Delete temporary file on exit (normal or error).
+#trap 'rm -f "${TMP}"' EXIT
+#
 #Process data.
 #tail -n +2 "${INPUTFILE}" \
 #| awk -v PCOL="${PVALUECOLUMNINDEX}" 'BEGIN{OFS="\t"} {print NR, $PCOL, $0}' \
@@ -157,6 +160,9 @@ END {
 
 #Save data.
 paste ${INPUTFILE} <(cut -f4 ${TMP}) > ${OUTPUTFILE}
+
+#Delete temporary file.
+rm -f ${TMP}
 
 ############################################################################
 ##SAVE CONTROL FILES:
