@@ -82,8 +82,11 @@ OUTPUTFILEPREFIX=$(echo ${INPUTFILENAME} | sed 's/\.txt.*$//' | sed 's/-job[0-9]
 OUTPUTFILENAME=$(echo "${OUTPUTFILEPREFIX}.PvalueFDR-job${JOBID}.txt") 
 OUTPUTFILE=$(echo "${OUTPUTLOCATION}/${OUTPUTFILENAME}") 
 
-#Create a temporary file.
-TMP=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.PvalueFDR-tmp-job${JOBID}.txt") 
+#Create a temporary files.
+TMP1=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.PvalueFDR-tmp1-job${JOBID}.txt") 
+TMP2=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.PvalueFDR-tmp2-job${JOBID}.txt") 
+TMP3=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.PvalueFDR-tmp3-job${JOBID}.txt") 
+TMP4=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.PvalueFDR-tmp4-job${JOBID}.txt") 
 
 ############################################################################
 ##ACTIONS:
@@ -129,12 +132,17 @@ TMP=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.PvalueFDR-tmp-job${JOBID}.txt"
 ##Save data.
 #cat "${TMP}" >> ${OUTPUTFILE}
 
-cat ${INPUTFILE} | cut -f ${PVALUECOLUMNINDEX} \
-| awk -v OFS='\t' 'NR==1 { print $0, "OriginalOrder"; next } { print $0, NR-1 }' \
+#Select target column containing raw p-values.
+cat ${INPUTFILE} | cut -f ${PVALUECOLUMNINDEX} > ${TMP1} 
+
+#Add original order of input p-values, sort and add column with order of ascending raw p-values.
+cat ${TMP1} | awk -v OFS='\t' 'NR==1 { print $0, "OriginalOrder"; next } { print $0, NR-1 }' \
 | tail -n+2 \
 | sort -g -k1,1 \
-| awk -v OFS='\t' '{ print $0, NR }' \
-| awk -v OFS='\t' -v NTESTS=${NTESTS} '
+| awk -v OFS='\t' '{ print $0, NR }' > ${TMP2}
+
+#Calculate BH-FDR p-values.
+cat ${TMP2} | awk -v OFS='\t' -v NTESTS=${NTESTS} '
 {
     p[NR] = $1
     rank[NR] = $3
@@ -154,15 +162,16 @@ END {
         print line[i], q[i]
     }
 }
-' \
-| sort -g -k2,2 \
-| sed '1ip-value\tOriginalOrder\tAscendingOrder\tPvalueFDR' > ${TMP}
+' > ${TMP3} 
+
+#Sort p-values according to original order.
+cat ${TMP3} | sort -g -k2,2 | sed '1ip-value\tOriginalOrder\tAscendingOrder\tPvalueFDR' > ${TMP4}
 
 #Save data.
-paste ${INPUTFILE} <(cut -f4 ${TMP}) > ${OUTPUTFILE}
+paste ${INPUTFILE} <(cut -f4 ${TMP4}) > ${OUTPUTFILE}
 
 #Delete temporary file.
-rm -f ${TMP}
+rm -f ${TMP1} ${TMP2} ${TMP3} ${TMP4}
 
 ############################################################################
 ##SAVE CONTROL FILES:
