@@ -9,7 +9,7 @@
 ##SCRIPT DESCRIPTION:
 
 ##Description:
-##Calculate genome-wide statistics and coverage of a BAM file.
+##Calculate BH FDR p-value.
 
 ##Input $1: Output location.
 ##Input $2: Tab-separated file with header (.txt).
