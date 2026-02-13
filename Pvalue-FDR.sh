@@ -83,6 +83,7 @@ OUTPUTFILENAME=$(echo "${OUTPUTFILEPREFIX}.PvalueFDR-job${JOBID}.txt")
 OUTPUTFILE=$(echo "${OUTPUTLOCATION}/${OUTPUTFILENAME}") 
 
 #Create a temporary files.
+TMPDIR=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.PvalueFDR-tmpdir-job${JOBID}") 
 TMP1=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.PvalueFDR-tmp1-job${JOBID}.txt") 
 TMP2=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.PvalueFDR-tmp2-job${JOBID}.txt") 
 TMP3=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.PvalueFDR-tmp3-job${JOBID}.txt") 
@@ -132,13 +133,16 @@ TMP4=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.PvalueFDR-tmp4-job${JOBID}.tx
 ##Save data.
 #cat "${TMP}" >> ${OUTPUTFILE}
 
+#Create temporary directory.
+mkdir -p ${TMPDIR}
+
 #Select target column containing raw p-values.
 cat ${INPUTFILE} | cut -f ${PVALUECOLUMNINDEX} > ${TMP1} 
 
 #Add original order of input p-values, sort and add column with order of ascending raw p-values.
 cat ${TMP1} | awk -v OFS='\t' 'NR==1 { print $0, "OriginalOrder"; next } { print $0, NR-1 }' \
 | tail -n+2 \
-| sort -g -k1,1 \
+| sort -g -k1,1 --temporary-directory=${TMPDIR} \
 | awk -v OFS='\t' '{ print $0, NR }' > ${TMP2}
 
 #Calculate BH-FDR p-values.
@@ -165,13 +169,13 @@ END {
 ' > ${TMP3} 
 
 #Sort p-values according to original order.
-cat ${TMP3} | sort -g -k2,2 | sed '1ip-value\tOriginalOrder\tAscendingOrder\tPvalueFDR' > ${TMP4}
+cat ${TMP3} | sort -g -k2,2 --temporary-directory=${TMPDIR} | sed '1ip-value\tOriginalOrder\tAscendingOrder\tPvalueFDR' > ${TMP4}
 
 #Save data.
 paste ${INPUTFILE} <(cut -f4 ${TMP4}) > ${OUTPUTFILE}
 
 #Delete temporary file.
-rm -f ${TMP1} ${TMP2} ${TMP3} ${TMP4}
+rm -rf ${TMPDIR} ${TMP1} ${TMP2} ${TMP3} ${TMP4}
 
 ############################################################################
 ##SAVE CONTROL FILES:
