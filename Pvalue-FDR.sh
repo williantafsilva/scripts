@@ -146,12 +146,31 @@ cat ${TMP1} | awk -v OFS='\t' 'NR==1 { print $0, "OriginalOrder"; next } { print
 | awk -v OFS='\t' '{ print $0, NR }' > ${TMP2}
 
 #Calculate BH-FDR p-values.
+#cat ${TMP2} | awk -v OFS='\t' -v NTESTS=${NTESTS} '
+#{
+#    p[NR] = $1
+#    rank[NR] = $3
+#    line[NR] = $0
+#    q[NR] = p[NR] * NTESTS / rank[NR]
+#}
+#END {
+#    #Enforce monotonicity from bottom to top.
+#    for (i = NR - 1; i >= 1; i--) {
+#        if (q[i] > q[i+1])
+#            q[i] = q[i+1]
+#    }
+#
+#    #Print results.
+#    for (i = 1; i <= NR; i++) {
+#        if (q[i] > 1) q[i] = 1
+#        print line[i], q[i]
+#    }
+#}
+#' > ${TMP3} 
 cat ${TMP2} | awk -v OFS='\t' -v NTESTS=${NTESTS} '
 {
-    p[NR] = $1
-    rank[NR] = $3
+    q[NR] = ($1 * NTESTS) / $3
     line[NR] = $0
-    q[NR] = p[NR] * NTESTS / rank[NR]
 }
 END {
     #Enforce monotonicity from bottom to top.
