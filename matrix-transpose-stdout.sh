@@ -22,7 +22,7 @@
 ##Input.
 
 DELIMITER=$1
-INPUTFILE=$2
+INPUTFILE=$(readlink -f $2)
 
 ##Process.
 
@@ -41,6 +41,18 @@ if [[ ${DELIMITER} == comma ]] ; then
         }
       }
     }' ${INPUTFILE}
+
+    #RUNDATE=$(date +"%Y%m%d%H%M%S")
+    #NCOLS=$(head -n1 ${INPUTFILE} | tr '\t' '\n' | wc -l)
+    #OUTPUTFILE=${INPUTFILE%/*}'/tmp-'${RUNDATE}'-matrixtranspose.txt'
+    #cut -f1 ${INPUTFILE} | tr '\n' '\t' > ${OUTPUTFILE}
+    #echo "" >> ${OUTPUTFILE}
+    #for C in $(seq 2 ${NCOLS}); do
+    #  cut -f ${C} ${INPUTFILE} | tr '\n' '\t' >> ${OUTPUTFILE}
+    #  echo "" >> ${OUTPUTFILE}
+    #done
+    #cat ${OUTPUTFILE}
+
 fi
 
 if [[ ${DELIMITER} == tab ]] ; then
