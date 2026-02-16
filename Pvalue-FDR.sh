@@ -167,23 +167,41 @@ cat ${TMP1} | awk -v OFS='\t' 'NR==1 { print $0, "OriginalOrder"; next } { print
 #    }
 #}
 #' > ${TMP3} 
-cat ${TMP2} | awk -v OFS='\t' -v NTESTS=${NTESTS} '
+
+#cat ${TMP2} | awk -v OFS='\t' -v NTESTS=${NTESTS} '
+#{
+#    q[NR] = ($1 * NTESTS) / $3
+#    line[NR] = $0
+#}
+#END {
+#    #Enforce monotonicity from bottom to top.
+#    for (i = NR - 1; i >= 1; i--) {
+#        if (q[i] > q[i+1])
+#            q[i] = q[i+1]
+#    }
+#
+#    #Print results.
+#    for (i = 1; i <= NR; i++) {
+#        if (q[i] > 1) q[i] = 1
+#        print line[i], q[i]
+#    }
+#}
+#' > ${TMP3} 
+
+tac ${TMP2} | awk -v OFS='\t' -v NTESTS=${NTESTS} '
 {
-    q[NR] = ($1 * NTESTS) / $3
-    line[NR] = $0
+    q = ($1 * NTESTS) / $3
+    if (NR == 1 || q < prev_q)
+        prev_q = q
+
+    if (prev_q > 1)
+        prev_q = 1
+
+    lines[NR] = $0 OFS prev_q
 }
 END {
-    #Enforce monotonicity from bottom to top.
-    for (i = NR - 1; i >= 1; i--) {
-        if (q[i] > q[i+1])
-            q[i] = q[i+1]
-    }
-
-    #Print results.
-    for (i = 1; i <= NR; i++) {
-        if (q[i] > 1) q[i] = 1
-        print line[i], q[i]
-    }
+    for (i = NR; i >= 1; i--)
+        print lines[i]
 }
 ' > ${TMP3} 
 
