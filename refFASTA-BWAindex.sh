@@ -73,7 +73,7 @@ INPUTFILENAME=${INPUTFILE##*/}
 ############################################################################
 ##OUTPUT:
 
-OUTPUTFILEPREFIX=$(echo ${INPUTFILE} | sed 's/\.fasta.*$//' | sed 's/\.fa.*$//' | sed 's/-job[0-9].*$//')
+OUTPUTFILEPREFIX=$(echo ${INPUTFILE} | sed 's/\.fasta.*$//' | sed 's/\.fa.*$//' | sed 's/\.fna.*$//' | sed 's/-job[0-9].*$//')
 OUTPUTFILEPREFIX=$(echo "${OUTPUTFILEPREFIX}.BWAindex-job${JOBID}")
 
 ############################################################################
