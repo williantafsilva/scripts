@@ -188,22 +188,39 @@ cat ${TMP1} | awk -v OFS='\t' 'NR==1 { print $0, "OriginalOrder"; next } { print
 #}
 #' > ${TMP3} 
 
-tac ${TMP2} | awk -v OFS='\t' -v NTESTS=${NTESTS} '
+#tac ${TMP2} | awk -v OFS='\t' -v NTESTS=${NTESTS} '
+#{
+#    q = ($1 * NTESTS) / $3
+#    if (NR == 1 || q < prev_q)
+#        prev_q = q
+#
+#    if (prev_q > 1)
+#        prev_q = 1
+#
+#    lines[NR] = $0 OFS prev_q
+#}
+#END {
+#    for (i = NR; i >= 1; i--)
+#        print lines[i]
+#}
+#' > ${TMP3} 
+
+tac "${TMP2}" | awk -v NTESTS="${NTESTS}" -v OUT="${TMP3}" '
 {
     q = ($1 * NTESTS) / $3
+
     if (NR == 1 || q < prev_q)
         prev_q = q
 
     if (prev_q > 1)
         prev_q = 1
 
-    lines[NR] = $0 OFS prev_q
+    print $0 OFS prev_q >> OUT
 }
 END {
-    for (i = NR; i >= 1; i--)
-        print lines[i]
+    close(OUT)
 }
-' > ${TMP3} 
+'
 
 #Sort p-values according to original order.
 cat ${TMP3} | sort -g -k2,2 --temporary-directory=${TMPDIR} | sed '1ip-value\tOriginalOrder\tAscendingOrder\tPvalueFDR' > ${TMP4}
