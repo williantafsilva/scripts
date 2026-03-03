@@ -85,10 +85,14 @@ OUTPUTFILE4=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.ld.gz")
 ############################################################################
 ##ACTIONS:
 
+#Count chromosomes.
+CHRSET=$(bcftools index -s ${INPUTFILE} | cut -f 1 | wc -l)
+
 echo "Compute pairwise LD (r^2)."
 
 plink --vcf ${INPUTFILE} \
 --double-id \
+--chr-set ${CHRSET} \
 --allow-extra-chr \
 --set-missing-var-ids @:# \
 --maf 0.05 --geno 0.1 --mind 0.5 \
