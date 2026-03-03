@@ -83,6 +83,7 @@ OUTPUTFILE3=$(echo "${OUTPUTFILEPREFIX}.fam")
 OUTPUTFILE4=$(echo "${OUTPUTFILEPREFIX}.ld.gz")
 OUTPUTFILE5=$(echo "${OUTPUTFILEPREFIX}.ldperdist.txt")
 OUTPUTFILE6=$(echo "${OUTPUTFILEPREFIX}.ldper10kbdistbin.txt")
+OUTPUTFILE7=$(echo "${OUTPUTFILEPREFIX}.meanldper10kbdistbin.txt")
 
 ############################################################################
 ##ACTIONS:
