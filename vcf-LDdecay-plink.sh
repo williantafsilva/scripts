@@ -167,6 +167,8 @@ Output file: ${OUTPUTFILE2}
 Output file: ${OUTPUTFILE3}
 Output file: ${OUTPUTFILE4}
 Output file: ${OUTPUTFILE5}
+Output file: ${OUTPUTFILE6}
+Output file: ${OUTPUTFILE7}
 " >> $(echo "${OUTPUTLOCATION}/README.txt") 
 
 	##COPY OF SCRIPT:
