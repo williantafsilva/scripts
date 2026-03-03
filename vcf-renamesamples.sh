@@ -84,7 +84,8 @@ OUTPUTFILE2=$(echo "${OUTPUTLOCATION}/${OUTPUTFILE2NAME}")
 ############################################################################
 ##ACTIONS:
 
-bcftools reheader --samples ${SAMPLENAMECONVERTIONFILE} -Oz --output ${OUTPUTFILE1} ${INPUTFILE}
+#bcftools reheader --samples ${SAMPLENAMECONVERTIONFILE} --output ${OUTPUTFILE1} ${INPUTFILE}
+bcftools reheader --samples ${SAMPLENAMECONVERTIONFILE} ${INPUTFILE} | bcftools view -Oz -o ${OUTPUTFILE1}
 bcftools index --tbi --output ${OUTPUTFILE2} ${OUTPUTFILE1}
 
 ############################################################################
