@@ -97,7 +97,9 @@ plink --vcf ${INPUTFILE} \
 --chr-set ${CHRNUMBER} \
 --allow-extra-chr \
 --set-missing-var-ids @:# \
---maf 0.05 --geno 0.1 --mind 0.5 \
+--maf 0.05 \
+--geno 0.1 \
+--mind 0.5 \
 --thin 0.1 \
 --r2 gz \
 --ld-window 100 \
@@ -106,7 +108,7 @@ plink --vcf ${INPUTFILE} \
 --make-bed \
 --out ${OUTPUTFILEPREFIX}
 
-echo "Bin LD by distance"
+echo "Bin LD by distance."
 
 #awk -v BIN=${BIN_SIZE} '
 #BEGIN {
