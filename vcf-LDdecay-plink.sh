@@ -81,7 +81,8 @@ OUTPUTFILE1=$(echo "${OUTPUTFILEPREFIX}.bed")
 OUTPUTFILE2=$(echo "${OUTPUTFILEPREFIX}.bin")
 OUTPUTFILE3=$(echo "${OUTPUTFILEPREFIX}.fam")
 OUTPUTFILE4=$(echo "${OUTPUTFILEPREFIX}.ld.gz")
-OUTPUTFILE5=$(echo "${OUTPUTFILEPREFIX}.ldplotdata.txt")
+OUTPUTFILE5=$(echo "${OUTPUTFILEPREFIX}.ldperdist.txt")
+OUTPUTFILE6=$(echo "${OUTPUTFILEPREFIX}.ldper10kbdistbin.txt")
 
 ############################################################################
 ##ACTIONS:
@@ -101,7 +102,7 @@ plink --vcf ${INPUTFILE} \
 --maf 0.05 \
 --geno 0.1 \
 --mind 0.5 \
---thin 0.1 \
+--thin 0.5 \
 --r2 gz \
 --ld-window 100 \
 --ld-window-kb 1000 \
@@ -109,24 +110,45 @@ plink --vcf ${INPUTFILE} \
 --make-bed \
 --out ${OUTPUTFILEPREFIX}
 
-echo "Bin LD by distance."
+echo "Calculate LD per chromosome and distance."
 
-zcat ${OUTPUTFILE4} | awk -v BIN=${BIN_SIZE} '
+zcat ${OUTPUTFILE4} | \
+awk '
 BEGIN {
-    print "distance_bp\tmean_r2"
+    print "Chromosome\tDistance_bp\tr2"
 }
-NR > 1 {
+NR > 1 && $1 == $4 {
     dist = ($5 > $2 ? $5 - $2 : $2 - $5)
-    bin = int(dist / BIN) * BIN
+    print $1 "\t" dist "\t" $7
+}' | sort -k1,1 -k2,2n > ${OUTPUTFILE5}
+
+echo "Calculate LD per 10kb distance bin."
+
+zcat ${OUTPUTFILE4} | \
+awk '
+BEGIN {
+    print "DistanceBin_bp\tr2"
+}
+NR > 1 && $1 == $4 {
+    dist = ($5 > $2 ? $5 - $2 : $2 - $5)
+    bin = int(dist / 10000) * 10000
+    print bin "\t" $7
+}' | sort -n > ${OUTPUTFILE6}
+
+echo "Calculate average LD per 10kb distance bin."
+
+zcat ${OUTPUTFILE4} | \
+awk 'NR > 1 && $1 == $4 {
+    dist = ($5 > $2 ? $5 - $2 : $2 - $5)
+    bin = int(dist / 10000) * 10000
     sum[bin] += $7
     count[bin]++
 }
 END {
-    for (b in sum) {
-        print b "\t" sum[b]/count[b]
-    }
-}
-' | sort -n > ${OUTPUTFILE5}
+    print "Distance_bp\tMean_r2\tN_pairs"
+    for (b in sum)
+        print b "\t" sum[b]/count[b] "\t" count[b]
+}' | sort -n > ${OUTPUTFILE7}
 
 ############################################################################
 ##SAVE CONTROL FILES:
