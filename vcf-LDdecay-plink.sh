@@ -87,7 +87,6 @@ OUTPUTFILE4=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.ld.gz")
 
 echo "Compute pairwise LD (r^2)."
 
-OUTPUTFILEPREFIX=INPUTFILE
 plink --vcf ${INPUTFILE} \
 --double-id \
 --allow-extra-chr \
