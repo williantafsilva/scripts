@@ -77,10 +77,11 @@ INPUTFILENAME=${INPUTFILE##*/}
 
 INPUTFILEPREFIX=$(echo ${INPUTFILENAME} | sed 's/\.vcf.*$//' | sed 's/-job[0-9].*$//')
 OUTPUTFILEPREFIX=$(echo "${OUTPUTLOCATION}/${INPUTFILEPREFIX}.plinkLDdecay-job${JOBID}") 
-OUTPUTFILE1=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.bed")
-OUTPUTFILE2=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.bin")
-OUTPUTFILE3=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.fam")
-OUTPUTFILE4=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.ld.gz")
+OUTPUTFILE1=$(echo "${OUTPUTFILEPREFIX}.bed")
+OUTPUTFILE2=$(echo "${OUTPUTFILEPREFIX}.bin")
+OUTPUTFILE3=$(echo "${OUTPUTFILEPREFIX}.fam")
+OUTPUTFILE4=$(echo "${OUTPUTFILEPREFIX}.ld.gz")
+OUTPUTFILE5=$(echo "${OUTPUTFILEPREFIX}.ldplotdata.txt")
 
 ############################################################################
 ##ACTIONS:
@@ -110,22 +111,22 @@ plink --vcf ${INPUTFILE} \
 
 echo "Bin LD by distance."
 
-#awk -v BIN=${BIN_SIZE} '
-#BEGIN {
-#    print "distance_bp\tmean_r2"
-#}
-#NR > 1 {
-#    dist = ($5 > $2 ? $5 - $2 : $2 - $5)
-#    bin = int(dist / BIN) * BIN
-#    sum[bin] += $7
-#    count[bin]++
-#}
-#END {
-#    for (b in sum) {
-#        print b "\t" sum[b]/count[b]
-#    }
-#}
-#' ${OUTPUTFILEPREFIX}_ld.ld | sort -n > ${OUTPUTFILEPREFIX}_ld_decay.txt
+zcat ${OUTPUTFILE4} | awk -v BIN=${BIN_SIZE} '
+BEGIN {
+    print "distance_bp\tmean_r2"
+}
+NR > 1 {
+    dist = ($5 > $2 ? $5 - $2 : $2 - $5)
+    bin = int(dist / BIN) * BIN
+    sum[bin] += $7
+    count[bin]++
+}
+END {
+    for (b in sum) {
+        print b "\t" sum[b]/count[b]
+    }
+}
+' | sort -n > ${OUTPUTFILE5}
 
 ############################################################################
 ##SAVE CONTROL FILES:
@@ -142,6 +143,7 @@ Output file: ${OUTPUTFILE1}
 Output file: ${OUTPUTFILE2}
 Output file: ${OUTPUTFILE3}
 Output file: ${OUTPUTFILE4}
+Output file: ${OUTPUTFILE5}
 " >> $(echo "${OUTPUTLOCATION}/README.txt") 
 
 	##COPY OF SCRIPT:
