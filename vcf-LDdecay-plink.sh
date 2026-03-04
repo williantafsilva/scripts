@@ -81,9 +81,8 @@ OUTPUTFILE1=$(echo "${OUTPUTFILEPREFIX}.bed")
 OUTPUTFILE2=$(echo "${OUTPUTFILEPREFIX}.bin")
 OUTPUTFILE3=$(echo "${OUTPUTFILEPREFIX}.fam")
 OUTPUTFILE4=$(echo "${OUTPUTFILEPREFIX}.ld.gz")
-OUTPUTFILE5=$(echo "${OUTPUTFILEPREFIX}.ldperdist.txt")
-OUTPUTFILE6=$(echo "${OUTPUTFILEPREFIX}.ldper10kbdistbin.txt")
-OUTPUTFILE7=$(echo "${OUTPUTFILEPREFIX}.meanldper10kbdistbin.txt")
+OUTPUTFILE5=$(echo "${OUTPUTFILEPREFIX}.distxld.txt")
+OUTPUTFILE6=$(echo "${OUTPUTFILEPREFIX}.averageldperdistperchr.txt")
 
 ############################################################################
 ##ACTIONS:
@@ -103,7 +102,7 @@ plink --vcf ${INPUTFILE} \
 --maf 0.05 \
 --geno 0.1 \
 --mind 0.5 \
---thin 0.5 \
+--thin 0.25 \
 --r2 gz \
 --ld-window 100 \
 --ld-window-kb 1000 \
@@ -111,50 +110,48 @@ plink --vcf ${INPUTFILE} \
 --make-bed \
 --out ${OUTPUTFILEPREFIX}
 
-echo "Calculate LD per chromosome and distance."
+echo "Calculate SNP pair distances and LD per SNP pair, and categorize distances into bins."
 
+echo -e "Chromosome\tDistance_bp\tr2" > ${OUTPUTFILE5}
 zcat ${OUTPUTFILE4} | \
-awk '
-BEGIN {
-    print "Chromosome\tDistance_bp\tr2"
-}
+awk -F'\t' -v OFS='\t' -v BIN_SIZE="${BIN_SIZE}" '
 NR > 1 && $1 == $4 {
-    dist = ($5 > $2 ? $5 - $2 : $2 - $5)
-    print $1 "\t" dist "\t" $7
-}' | sort -k1,1 -k2,2n > ${OUTPUTFILE5}
+	DISTANCE = ($5 > $2 ? $5 - $2 : $2 - $5)
+	BIN = int(DISTANCE / BIN_SIZE) * BIN_SIZE
+    print $1, DISTANCE, BIN, $7
+}' | sort -k1,1 -k2,2n >> ${OUTPUTFILE5}
 
-echo "Calculate LD per 10kb distance bin."
+echo "Calculate chromosome-wide average LD per distance bin."
 
-zcat ${OUTPUTFILE4} | \
-awk '
-BEGIN {
-    print "DistanceBin_bp\tr2"
+echo -e "Chromosome\tDistanceBin_bp\tAverage_r2\tCount" > ${OUTPUTFILE6}
+zcat ${OUTPUTFILE5} | \
+awk -F'\t' -v OFS='\t' '
+#For each line:
+{ 	#Create a chromosome/bin pair.
+	CHRBIN = $1 FS $3
+    #Add r^2 values to the running sum for this chromosome/bin pair.
+    SUM[CHRBIN] += $4
+    #Count records of chromosome/bin pair.
+    COUNT[CHRBIN]++
 }
-NR > 1 && $1 == $4 {
-    dist = ($5 > $2 ? $5 - $2 : $2 - $5)
-    bin = int(dist / 10000) * 10000
-    print bin "\t" $7
-}' | sort -n > ${OUTPUTFILE6}
-
-echo "Calculate average LD per 10kb distance bin."
-
-zcat ${OUTPUTFILE4} | \
-awk 'NR > 1 && $1 == $4 {
-    dist = ($5 > $2 ? $5 - $2 : $2 - $5)
-    bin = int(dist / 10000) * 10000
-    sum[bin] += $7
-    count[bin]++
-}
+#After reading the whole file:
 END {
-    print "Distance_bp\tMean_r2\tN_pairs"
-    for (b in sum)
-        print b "\t" sum[b]/count[b] "\t" count[b]
-}' | sort -n > ${OUTPUTFILE7}
+    #Loop over each group.
+    for (K in SUM) {
+        #Split chromosome/bin pair back into chromosome and bin columns.
+        split(K, FIELDS, FS)
+        #Calculate average.
+        AVERAGE = SUM[K] / COUNT[K]
+        #Print results.
+        print FIELDS[1], FIELDS[2], AVERAGE, COUNT[K]
+    }
+}
+' | sort -k1,1 -k2,2n >> ${OUTPUTFILE6}
 
 ############################################################################
 ##SAVE CONTROL FILES:
 
-if [[ -s "${OUTPUTFILE4}" ]]; then
+if [[ -s "${OUTPUTFILE6}" ]]; then
 	
 	##README LOG ENTRY:
 echo "############################################################################
@@ -168,7 +165,6 @@ Output file: ${OUTPUTFILE3}
 Output file: ${OUTPUTFILE4}
 Output file: ${OUTPUTFILE5}
 Output file: ${OUTPUTFILE6}
-Output file: ${OUTPUTFILE7}
 " >> $(echo "${OUTPUTLOCATION}/README.txt") 
 
 	##COPY OF SCRIPT:
