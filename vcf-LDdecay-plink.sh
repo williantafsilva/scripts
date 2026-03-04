@@ -114,7 +114,7 @@ echo "Calculate SNP pair distances and LD per SNP pair, and categorize distances
 
 echo -e "Chromosome\tDistance_bp\tDistanceBin_bp\tr2" > ${OUTPUTFILE5}
 zcat ${OUTPUTFILE4} | \
-awk -F'\t' -v OFS='\t' -v BIN_SIZE="${BIN_SIZE}" '
+awk -v OFS='\t' -v BIN_SIZE="${BIN_SIZE}" '
 NR > 1 && $1 == $4 {
 	DISTANCE = ($5 > $2 ? $5 - $2 : $2 - $5)
 	BIN = int(DISTANCE / BIN_SIZE) * BIN_SIZE
@@ -124,8 +124,8 @@ NR > 1 && $1 == $4 {
 echo "Calculate chromosome-wide average LD per distance bin."
 
 echo -e "Chromosome\tDistanceBin_bp\tAverage_r2\tCount" > ${OUTPUTFILE6}
-zcat ${OUTPUTFILE5} | \
-awk -F'\t' -v OFS='\t' '
+cat ${OUTPUTFILE5} | \
+awk -v OFS='\t' '
 #For each line:
 NR > 1 { 
 	#Create a chromosome/bin pair.
