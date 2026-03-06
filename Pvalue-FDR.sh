@@ -83,7 +83,8 @@ OUTPUTFILENAME=$(echo "${OUTPUTFILEPREFIX}.PvalueFDR-job${JOBID}.txt")
 OUTPUTFILE=$(echo "${OUTPUTLOCATION}/${OUTPUTFILENAME}") 
 
 #Create a temporary files.
-TMPDIR=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.PvalueFDR-tmpdir-job${JOBID}") 
+TMPDIR1=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.PvalueFDR-tmpdir1-job${JOBID}") 
+TMPDIR2=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.PvalueFDR-tmpdir2-job${JOBID}") 
 TMP1=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.PvalueFDR-tmp1-job${JOBID}.txt") 
 TMP2=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.PvalueFDR-tmp2-job${JOBID}.txt") 
 TMP3=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.PvalueFDR-tmp3-job${JOBID}.txt") 
@@ -92,49 +93,9 @@ TMP4=$(echo "${OUTPUTLOCATION}/${OUTPUTFILEPREFIX}.PvalueFDR-tmp4-job${JOBID}.tx
 ############################################################################
 ##ACTIONS:
 
-##Create a temporary file.
-#TMP=$(mktemp)
-#
-##Delete temporary file on exit (normal or error).
-#trap 'rm -f "${TMP}"' EXIT
-#
-#Process data.
-#tail -n +2 "${INPUTFILE}" \
-#| awk -v PCOL="${PVALUECOLUMNINDEX}" 'BEGIN{OFS="\t"} {print NR, $PCOL, $0}' \
-#| sort -g -k2,2 \
-#| awk -v NTESTS="${NTESTS}" 'BEGIN{OFS="\t"}
-#{
-#    rank = NR #BH rank (1 = smallest p-value).
-#    idx[rank] = $1 #Map rank -> original row index.
-#    line[rank] = substr($0, index($0,$3)) #Store original line (everything from column 3 onward).
-#    bh[rank] = $2 * NTESTS / rank #Benjamini–Hochberg formula.
-#}
-#END {
-#    #Enforce monotonicity. Adjusted p-values must be non-decreasing.
-#    for (i = NR - 1; i >= 1; i--) {
-#        if (bh[i] > bh[i + 1])
-#            bh[i] = bh[i + 1]
-#    }
-#
-#    #Cap FDR p-values at 1 and restore original order.
-#    for (i = 1; i <= NR; i++) {
-#        adj[idx[i]] = (bh[i] > 1 ? 1 : bh[i])
-#    }
-#
-#    #Print lines in original order with appended FDR value.
-#    for (i = 1; i <= NR; i++) {
-#        printf "%s\t%.10g\n", line[i], adj[i]
-#    }
-#}' > "${TMP}"
-#
-##Save header.
-#awk 'NR==1 {print $0 "\tPvalueFDR"}' "${INPUTFILE}" > ${OUTPUTFILE}
-#
-##Save data.
-#cat "${TMP}" >> ${OUTPUTFILE}
-
-#Create temporary directory.
-mkdir -p ${TMPDIR}
+#Create temporary directories.
+mkdir -p ${TMPDIR1}
+mkdir -p ${TMPDIR2}
 
 #Select target column containing raw p-values.
 cat ${INPUTFILE} | cut -f ${PVALUECOLUMNINDEX} > ${TMP1} 
@@ -142,94 +103,44 @@ cat ${INPUTFILE} | cut -f ${PVALUECOLUMNINDEX} > ${TMP1}
 #Add original order of input p-values, sort and add column with order of ascending raw p-values.
 cat ${TMP1} | awk -v OFS='\t' 'NR==1 { print $0, "OriginalOrder"; next } { print $0, NR-1 }' \
 | tail -n+2 \
-| sort -g -k1,1 --temporary-directory=${TMPDIR} \
+| sort -g -k1,1 --temporary-directory=${TMPDIR1} \
 | awk -v OFS='\t' '{ print $0, NR }' > ${TMP2}
 
 #Calculate BH-FDR p-values.
-#cat ${TMP2} | awk -v OFS='\t' -v NTESTS=${NTESTS} '
-#{
-#    p[NR] = $1
-#    rank[NR] = $3
-#    line[NR] = $0
-#    q[NR] = p[NR] * NTESTS / rank[NR]
-#}
-#END {
-#    #Enforce monotonicity from bottom to top.
-#    for (i = NR - 1; i >= 1; i--) {
-#        if (q[i] > q[i+1])
-#            q[i] = q[i+1]
-#    }
-#
-#    #Print results.
-#    for (i = 1; i <= NR; i++) {
-#        if (q[i] > 1) q[i] = 1
-#        print line[i], q[i]
-#    }
-#}
-#' > ${TMP3} 
-
-#cat ${TMP2} | awk -v OFS='\t' -v NTESTS=${NTESTS} '
-#{
-#    q[NR] = ($1 * NTESTS) / $3
-#    line[NR] = $0
-#}
-#END {
-#    #Enforce monotonicity from bottom to top.
-#    for (i = NR - 1; i >= 1; i--) {
-#        if (q[i] > q[i+1])
-#            q[i] = q[i+1]
-#    }
-#
-#    #Print results.
-#    for (i = 1; i <= NR; i++) {
-#        if (q[i] > 1) q[i] = 1
-#        print line[i], q[i]
-#    }
-#}
-#' > ${TMP3} 
-
-#tac ${TMP2} | awk -v OFS='\t' -v NTESTS=${NTESTS} '
+#tac "${TMP2}" | awk -v NTESTS="${NTESTS}" -v OUT="${TMP3}" '
 #{
 #    q = ($1 * NTESTS) / $3
+#
 #    if (NR == 1 || q < prev_q)
 #        prev_q = q
 #
 #    if (prev_q > 1)
 #        prev_q = 1
 #
-#    lines[NR] = $0 OFS prev_q
+#    print $0 OFS prev_q >> OUT
 #}
 #END {
-#    for (i = NR; i >= 1; i--)
-#        print lines[i]
+#    close(OUT)
 #}
-#' > ${TMP3} 
+#'
 
-tac "${TMP2}" | awk -v NTESTS="${NTESTS}" -v OUT="${TMP3}" '
+tac "${TMP2}" | awk -v NTESTS="${NTESTS}" '
 {
     q = ($1 * NTESTS) / $3
-
-    if (NR == 1 || q < prev_q)
-        prev_q = q
-
-    if (prev_q > 1)
-        prev_q = 1
-
-    print $0 OFS prev_q >> OUT
+    if (NR == 1 || q < prev_q) prev_q = q
+    if (prev_q > 1) prev_q = 1
+    print $0 OFS prev_q
 }
-END {
-    close(OUT)
-}
-'
+' > "${TMP3}"
 
 #Sort p-values according to original order.
-cat ${TMP3} | sort -g -k2,2 --temporary-directory=${TMPDIR} | sed '1ip-value\tOriginalOrder\tAscendingOrder\tPvalueFDR' > ${TMP4}
+cat ${TMP3} | sort -g -k2,2 --temporary-directory=${TMPDIR2} | sed '1ip-value\tOriginalOrder\tAscendingOrder\tPvalueFDR' > ${TMP4}
 
 #Save data.
 paste ${INPUTFILE} <(cut -f4 ${TMP4}) > ${OUTPUTFILE}
 
 #Delete temporary file.
-rm -rf ${TMPDIR} ${TMP1} ${TMP2} ${TMP3} ${TMP4}
+#rm -rf ${TMPDIR1} ${TMPDIR2} ${TMP1} ${TMP2} ${TMP3} ${TMP4}
 
 ############################################################################
 ##SAVE CONTROL FILES:
