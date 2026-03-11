@@ -91,6 +91,17 @@ umi_tools dedup \
 	--output-stats=${OUTPUTFILEPREFIX} \
 	--umi-separator=':'
 
+#umi_tools dedup \
+#	-I ${INPUTFILE} \
+#	-S ${OUTPUTFILE1} \
+#	-L ${OUTPUTFILE2} \
+#	--paired \
+#	--buffer-whole-contig \
+#	--chimeric-pairs=discard \
+#	--unpaired-reads=discard \
+#	--output-stats=${OUTPUTFILEPREFIX} \
+#	--umi-separator=':'
+
 ##Sort BAM file.
 samtools sort -o ${OUTPUTFILE1} ${OUTPUTFILE1}
 
