@@ -102,7 +102,7 @@ plink --vcf ${INPUTFILE} \
 --maf 0.05 \
 --geno 0.1 \
 --mind 0.5 \
---thin 0.25 \
+--thin 0.5 \
 --r2 gz \
 --ld-window 100 \
 --ld-window-kb 1000 \
