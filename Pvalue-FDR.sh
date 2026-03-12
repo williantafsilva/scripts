@@ -107,23 +107,6 @@ cat ${TMP1} | awk -v OFS='\t' 'NR==1 { print $0, "OriginalOrder"; next } { print
 | awk -v OFS='\t' '{ print $0, NR }' > ${TMP2}
 
 #Calculate BH-FDR p-values.
-#tac "${TMP2}" | awk -v NTESTS="${NTESTS}" -v OUT="${TMP3}" '
-#{
-#    q = ($1 * NTESTS) / $3
-#
-#    if (NR == 1 || q < prev_q)
-#        prev_q = q
-#
-#    if (prev_q > 1)
-#        prev_q = 1
-#
-#    print $0 OFS prev_q >> OUT
-#}
-#END {
-#    close(OUT)
-#}
-#'
-
 tac "${TMP2}" | awk -v NTESTS="${NTESTS}" '
 {
     q = ($1 * NTESTS) / $3
