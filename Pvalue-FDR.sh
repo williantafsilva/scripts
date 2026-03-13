@@ -117,10 +117,12 @@ tac "${TMP2}" | awk -v NTESTS="${NTESTS}" '
 ' > "${TMP3}"
 
 #Sort p-values according to original order.
-cat ${TMP3} | sort -g -k2,2 --temporary-directory=${TMPDIR2} | sed '1ip-value\tOriginalOrder\tAscendingOrder\tPvalueFDR' > ${TMP4}
+#cat ${TMP3} | sort -g -k2,2 --temporary-directory=${TMPDIR2} | sed '1ip-value\tOriginalOrder\tAscendingOrder\tPvalueFDR' > ${TMP4}
+cut -f2,4 ${TMP3} | sort -g -k1,1 --temporary-directory=${TMPDIR2} | sed '1iOriginalOrder\tPvalueFDR' > ${TMP4}
 
 #Save data.
-paste ${INPUTFILE} <(cut -f4 ${TMP4}) > ${OUTPUTFILE}
+#paste ${INPUTFILE} <(cut -f4 ${TMP4}) > ${OUTPUTFILE}
+paste ${INPUTFILE} <(cut -f2 ${TMP4}) > ${OUTPUTFILE}
 
 #Delete temporary file.
 #rm -rf ${TMPDIR1} ${TMPDIR2} ${TMP1} ${TMP2} ${TMP3} ${TMP4}
