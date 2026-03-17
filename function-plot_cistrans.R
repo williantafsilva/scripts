@@ -12,7 +12,19 @@ plot_cistrans<-function(SNP_CHR=c(1:10), #Vector of SNP chromosomes.
                         GENE_CHR=c(1:5,7,8,9,10,6), #Vector of gene chromosomes.
                         GENE_STARTPOS=rep(1,10), #Vector of gene start positions.
                         GENE_ENDPOS=rep(10,10), #Vector of gene end positions.
-                        CHRSET){ #Vector of chromosome set.)
+                        CHRSET, #Vector of chromosome set.
+                        SINGLEPLOT=TRUE){ #If TRUE, the function returns a single plot. If FALSE, it returns a list with separate plots.
+  
+  #SNP_CHR<-DATA_CISTRANS$SNP_CHR
+  #SNP_POS<-DATA_CISTRANS$SNP_POS
+  #SNP_PVALUE<-DATA_CISTRANS$SNP_PVALUE
+  #TYPE<-DATA_CISTRANS$TYPE
+  #GENE_ID<-DATA_CISTRANS$GENE_ID
+  #GENE_CHR<-DATA_CISTRANS$GENE_CHR
+  #GENE_STARTPOS<-DATA_CISTRANS$GENE_START
+  #GENE_ENDPOS<-DATA_CISTRANS$GENE_END
+  #CHRSET<-c(1:39,"Z","W")
+  #SINGLEPLOT<-FALSE
   
   #Load libraries.
   library(ggplot2)
@@ -101,9 +113,9 @@ plot_cistrans<-function(SNP_CHR=c(1:10), #Vector of SNP chromosomes.
                       GENE_STARTPOS=c(1,101),
                       GENE_ENDPOS=c(100,200),
                       GENE_NSNPS=0)#,
-                      #GENE_NCISSNPS=0,
-                      #GENE_NTRANSSNPS=0
-                      #)
+      #GENE_NCISSNPS=0,
+      #GENE_NTRANSSNPS=0
+      #)
       DATA<-rbind(DATA,TMP)
     }
   }
@@ -172,7 +184,7 @@ plot_cistrans<-function(SNP_CHR=c(1:10), #Vector of SNP chromosomes.
     GENE_RECTY$Rectymax[C]<-max(DATA$GENEAXIS_POS[DATA$GENE_CHR==GENE_RECTY$Chromosome[C]])
     GENE_RECTY$Rectcolor[C]<-RECTCOLORS[C]
   }
-
+  
   #Calculate center of each chromosome on the x axis.
   SNP_AXIS_SET<-DATA %>% 
     group_by(SNP_CHR) %>%
@@ -204,11 +216,13 @@ plot_cistrans<-function(SNP_CHR=c(1:10), #Vector of SNP chromosomes.
       scale_x_continuous(label=SNP_AXIS_SET$SNP_CHR,breaks=SNP_AXIS_SET$center)+
       scale_y_continuous(limits=c(min(-log2(DATA$SNP_PVALUE[DATA$TYPE=="Cis"]),na.rm=TRUE),
                                   max(-log2(DATA$SNP_PVALUE[DATA$TYPE=="Cis"]),na.rm=TRUE)))+
-      labs(x=expression("Chromosome"),y=expression('-Log'[2]~'P-value'))+
+      labs(x=expression("SNP position (chromosome)"),y=expression('-Log'[2]~'P-value'))+
       #ggtitle(expression("Cis-SNPs"))+
       annotate("text",
-               x=0.9*max(SNP_RECTX$Rectxmax),
-               y=0.9*max(-log2(DATA$SNP_PVALUE[DATA$TYPE=="Cis"])),
+               #x=0.9*max(SNP_RECTX$Rectxmax),
+               #y=0.9*max(-log2(DATA$SNP_PVALUE[DATA$TYPE=="Trans"])),
+               x=mean(SNP_RECTX$Rectxmax), 
+               y=max(-log2(DATA$SNP_PVALUE[DATA$TYPE=="Cis"])),
                label="Cis-SNPs")+
       #facet_wrap(~TYPE)+
       myggplottheme_blank
@@ -226,11 +240,13 @@ plot_cistrans<-function(SNP_CHR=c(1:10), #Vector of SNP chromosomes.
       scale_x_continuous(label=SNP_AXIS_SET$SNP_CHR,breaks=SNP_AXIS_SET$center)+
       scale_y_continuous(limits=c(min(-log2(DATA$SNP_PVALUE[DATA$TYPE=="Trans"]),na.rm=TRUE),
                                   max(-log2(DATA$SNP_PVALUE[DATA$TYPE=="Trans"]),na.rm=TRUE)))+
-      labs(x=expression("Chromosome"),y=expression('-Log'[2]~'P-value'))+
+      labs(x=expression("SNP position (chromosome)"),y=expression('-Log'[2]~'P-value'))+
       #ggtitle(expression("Trans-SNPs"))+
       annotate("text",
-               x=0.9*max(SNP_RECTX$Rectxmax),
-               y=0.9*max(-log2(DATA$SNP_PVALUE[DATA$TYPE=="Trans"])),
+               #x=0.9*max(SNP_RECTX$Rectxmax),
+               #y=0.9*max(-log2(DATA$SNP_PVALUE[DATA$TYPE=="Trans"])),
+               x=mean(SNP_RECTX$Rectxmax),
+               y=max(-log2(DATA$SNP_PVALUE[DATA$TYPE=="Trans"])),
                label="Trans-SNPs")+
       #facet_wrap(~TYPE)+
       myggplottheme_blank
@@ -299,7 +315,7 @@ plot_cistrans<-function(SNP_CHR=c(1:10), #Vector of SNP chromosomes.
                  size=2)+
       scale_x_continuous(label=SNP_AXIS_SET$SNP_CHR,breaks=SNP_AXIS_SET$center)+
       scale_y_continuous(label=GENE_AXIS_SET$GENE_CHR,breaks=GENE_AXIS_SET$center)+
-      labs(x=expression("SNP position"),y=expression("Gene position"))+
+      labs(x=expression("SNP position (chromosome)"),y=expression("Gene position (chromosome)"))+
       ggtitle(expression("Cis-trans plot"))+
       myggplottheme_blank
     #p3
@@ -317,11 +333,11 @@ plot_cistrans<-function(SNP_CHR=c(1:10), #Vector of SNP chromosomes.
       geom_hline(aes(yintercept=mean(SNP_NGENES)),
                  color="black",linetype="dashed",linewidth=0.5)+
       scale_x_continuous(label=SNP_AXIS_SET$SNP_CHR,breaks=SNP_AXIS_SET$center)+
-      labs(x=expression("SNP position"),y=expression("# Cis-genes"))+
+      labs(x=expression("SNP position (chromosome)"),y=expression("# Cis-genes"))+
       #ggtitle("Number of genes per SNP")+
       myggplottheme_blank+
-      theme(axis.title.x=element_blank(),
-            axis.text.y=element_text(angle=90,vjust=1,hjust=0.5))
+      theme(#axis.title.x=element_blank(),
+        axis.text.y=element_text(angle=90,vjust=1,hjust=0.5))
     #p4a
     
     #Number of trans-genes per SNP.
@@ -337,14 +353,15 @@ plot_cistrans<-function(SNP_CHR=c(1:10), #Vector of SNP chromosomes.
       geom_hline(aes(yintercept=mean(SNP_NGENES)),
                  color="black",linetype="dashed",linewidth=0.5)+
       scale_x_continuous(label=SNP_AXIS_SET$SNP_CHR,breaks=SNP_AXIS_SET$center)+
-      labs(x=expression("SNP position"),y=expression("# Trans-genes"))+
+      labs(x=expression("SNP position (chromosome)"),y=expression("# Trans-genes"))+
       #ggtitle("Number of genes per SNP")+
       myggplottheme_blank+
-      theme(axis.title.x=element_blank(),
-            axis.text.y=element_text(angle=90,vjust=1,hjust=0.5))
+      theme(#axis.title.x=element_blank(),
+        axis.text.y=element_text(angle=90,vjust=1,hjust=0.5))
     #p4b
     
-    p4<-ggarrange(p4a,p4b,
+    p4<-ggarrange(p4a+theme(axis.title.x=element_blank()),
+                  p4b+theme(axis.title.x=element_blank()),
                   ncol=1)
     #p4
     
@@ -381,13 +398,13 @@ plot_cistrans<-function(SNP_CHR=c(1:10), #Vector of SNP chromosomes.
       geom_hline(aes(yintercept=mean(GENE_NSNPS)),
                  color="black",linetype="dashed",linewidth=0.5)+
       scale_x_continuous(label=GENE_AXIS_SET$GENE_CHR,breaks=GENE_AXIS_SET$center)+
-      labs(x=expression("Chromosome"),y=expression("# Cis-SNPs"))+
+      labs(x=expression("Gene position (chromosome)"),y=expression("# Cis-SNPs"))+
       #ggtitle("Number of cis-SNPs per gene")+
       myggplottheme_blank+
-      theme(axis.title.y=element_blank(),
-            axis.text.x=element_text(angle=0,vjust=1,hjust=0.5)
-      )+
-      rotate()
+      theme(#axis.title.y=element_blank(),
+        axis.text.x=element_text(angle=0,vjust=1,hjust=0.5)
+      )#+
+    #rotate()
     #p5a
     
     #Number of trans-SNPs per gene.
@@ -403,22 +420,25 @@ plot_cistrans<-function(SNP_CHR=c(1:10), #Vector of SNP chromosomes.
       geom_hline(aes(yintercept=mean(GENE_NSNPS)),
                  color="black",linetype="dashed",linewidth=0.5)+
       scale_x_continuous(label=GENE_AXIS_SET$GENE_CHR,breaks=GENE_AXIS_SET$center)+
-      labs(x=expression("Chromosome"),y=expression("# Trans-SNPs"))+
+      labs(x=expression("Gene position (chromosome)"),y=expression("# Trans-SNPs"))+
       #ggtitle("Number of trans-SNPs per gene")+
       myggplottheme_blank+
-      theme(axis.title.y=element_blank(),
-            axis.text.x=element_text(angle=0,vjust=1,hjust=0.5)
-      )+
-      rotate()
+      theme(#axis.title.y=element_blank(),
+        axis.text.x=element_text(angle=0,vjust=1,hjust=0.5)
+      )#+
+    #rotate()
     #p5b
     
-    p5<-ggarrange(p5a,p5b,
+    p5<-ggarrange(p5a+theme(axis.title.y=element_blank())+
+                    rotate(),
+                  p5b+theme(axis.title.y=element_blank())+
+                    rotate(),
                   nrow=1)
     #p5
     
     #Intra-chromosomal distance between SNP and gene center.
     p6<-ggplot(data=DATA)+
-    geom_point(data=DATA[DATA$SNP_CHR %in% CHRSET &
+      geom_point(data=DATA[DATA$SNP_CHR %in% CHRSET &
                              DATA$GENE_CHR %in% CHRSET &
                              DATA$TYPE=="Trans",],aes(x=SNPDISTGENE,y=-log2(SNP_PVALUE)),
                  color="red",
@@ -473,6 +493,19 @@ plot_cistrans<-function(SNP_CHR=c(1:10), #Vector of SNP chromosomes.
                      widths=c(1,2.5))
     #p.all
     
+    if(!SINGLEPLOT){
+      ALLPLOTS<-list()
+      ALLPLOTS[[1]]<-p1
+      ALLPLOTS[[2]]<-p2
+      ALLPLOTS[[3]]<-p3
+      ALLPLOTS[[4]]<-ggarrange(p4a,p4b,
+                               ncol=1)
+      ALLPLOTS[[5]]<-ggarrange(p5a,p5b,
+                               ncol=1)
+      ALLPLOTS[[6]]<-p6+ggtitle(expression("Distance between SNP and gene center"))
+      ALLPLOTS[[7]]<-p7+ggtitle(expression("Cis- vs. trans-SNPs per gene"))
+    }
+    
   }else{
     
     #Manhattan plots.
@@ -487,11 +520,13 @@ plot_cistrans<-function(SNP_CHR=c(1:10), #Vector of SNP chromosomes.
       scale_x_continuous(label=SNP_AXIS_SET$SNP_CHR,breaks=SNP_AXIS_SET$center)+
       scale_y_continuous(limits=c(min(-log2(DATA$SNP_PVALUE),na.rm=TRUE),
                                   max(-log2(DATA$SNP_PVALUE),na.rm=TRUE)))+
-      labs(x=expression("Chromosome"),y=expression('-Log'[2]~'P-value'))+
+      labs(x=expression("SNP position (chromosome)"),y=expression('-Log'[2]~'P-value'))+
       #ggtitle(expression("Cis-SNPs"))+
       annotate("text",
-               x=0.9*max(SNP_RECTX$Rectxmax),
-               y=0.9*max(-log2(DATA$SNP_PVALUE)),
+               #x=0.9*max(SNP_RECTX$Rectxmax),
+               #y=0.9*max(-log2(DATA$SNP_PVALUE)),
+               x=mean(SNP_RECTX$Rectxmax),
+               y=max(-log2(DATA$SNP_PVALUE)),
                label="All SNPs")+
       #facet_wrap(~TYPE)+
       myggplottheme_blank
@@ -530,7 +565,7 @@ plot_cistrans<-function(SNP_CHR=c(1:10), #Vector of SNP chromosomes.
                  size=2)+
       scale_x_continuous(label=SNP_AXIS_SET$SNP_CHR,breaks=SNP_AXIS_SET$center)+
       scale_y_continuous(label=GENE_AXIS_SET$GENE_CHR,breaks=GENE_AXIS_SET$center)+
-      labs(x=expression("SNP position"),y=expression("Gene position"))+
+      labs(x=expression("SNP position (chromosome)"),y=expression("Gene position (chromosome)"))+
       ggtitle(expression("Cis-trans plot"))+
       myggplottheme_blank
     #p3
@@ -547,11 +582,11 @@ plot_cistrans<-function(SNP_CHR=c(1:10), #Vector of SNP chromosomes.
       geom_hline(aes(yintercept=mean(SNP_NGENES)),
                  color="black",linetype="dashed",linewidth=0.5)+
       scale_x_continuous(label=SNP_AXIS_SET$SNP_CHR,breaks=SNP_AXIS_SET$center)+
-      labs(x=expression("SNP position"),y=expression("# Genes"))+
+      labs(x=expression("SNP position (chromosome)"),y=expression("# Genes"))+
       #ggtitle("Number of genes per SNP")+
       myggplottheme_blank+
-      theme(axis.title.x=element_blank(),
-            axis.text.y=element_text(angle=90,vjust=1,hjust=0.5))
+      theme(#axis.title.x=element_blank(),
+        axis.text.y=element_text(angle=90,vjust=1,hjust=0.5))
     #p4
     
     ##Number of SNPs per gene.
@@ -586,13 +621,13 @@ plot_cistrans<-function(SNP_CHR=c(1:10), #Vector of SNP chromosomes.
       geom_hline(aes(yintercept=mean(GENE_NSNPS)),
                  color="black",linetype="dashed",linewidth=0.5)+
       scale_x_continuous(label=GENE_AXIS_SET$GENE_CHR,breaks=GENE_AXIS_SET$center)+
-      labs(x=expression("Chromosome"),y=expression("# SNPs"))+
+      labs(x=expression("Gene position (chromosome)"),y=expression("# SNPs"))+
       #ggtitle("Number of SNPs per gene")+
       myggplottheme_blank+
-      theme(axis.title.y=element_blank(),
-            axis.text.x=element_text(angle=0,vjust=1,hjust=0.5)
-      )+
-      rotate()
+      theme(#axis.title.y=element_blank(),
+        axis.text.x=element_text(angle=0,vjust=1,hjust=0.5)
+      )#+
+    #rotate()
     #p5
     
     #Intra-chromosomal distance between SNP and gene center.
@@ -612,11 +647,11 @@ plot_cistrans<-function(SNP_CHR=c(1:10), #Vector of SNP chromosomes.
                                nrow=3,ncol=1,
                                heights=c(2,2,2),
                                labels=c("A","B","C")),
-                     ggarrange(ggarrange(p3,p4,
+                     ggarrange(ggarrange(p3,p4+theme(axis.title.x=element_blank()),
                                          nrow=2,
                                          heights=c(4,2),
                                          labels=c("D","E")),
-                               ggarrange(p5,
+                               ggarrange(p5+theme(axis.title.y=element_blank())+rotate(),
                                          nrow=2,
                                          heights=c(4,2),
                                          labels=c("F",NULL)),
@@ -626,36 +661,24 @@ plot_cistrans<-function(SNP_CHR=c(1:10), #Vector of SNP chromosomes.
                      ncol=2,nrow=1,
                      widths=c(1,2.5))
     #p.all
-
+    
+    if(!SINGLEPLOT){
+      ALLPLOTS[[1]]<-p1
+      ALLPLOTS[[2]]<-p2
+      ALLPLOTS[[3]]<-p3
+      ALLPLOTS[[4]]<-p4
+      ALLPLOTS[[5]]<-p5
+      ALLPLOTS[[6]]<-p6+ggtitle(expression("Distance between SNP and gene center"))
+    }
+    
   }
   
-  return(p.all)
+  #Output.
+  if(SINGLEPLOT){
+    return(p.all)
+  }else{
+    return(ALLPLOTS)
+  }
   
 }
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
