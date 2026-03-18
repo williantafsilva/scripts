@@ -12,7 +12,8 @@ plot_genotype_phenotype<-function(MATRIX_GENOTYPES, #Data frame of genotypes wit
                                   PLOTTITLE="Genotype x Phenotype",
                                   XLABEL="Genotype",
                                   YLABEL="Phenotype",
-                                  MAXNPLOTS=25){ #Maximum number of plots.
+                                  MAXNPLOTS=25, #Maximum number of plots.
+                                  BOXCOLOR="black"){ 
   
   #Load libraries.
   library(ggplot2)
@@ -123,11 +124,11 @@ plot_genotype_phenotype<-function(MATRIX_GENOTYPES, #Data frame of genotypes wit
   #Create plot.
   p.genxphen<-DATA_GENOTYPE_PHENOTYPE %>%
     ggplot(aes(x=Genotype,y=PhenotypeValue))+ 
+    geom_boxplot(aes(fill=Genotype),
+                 width=0.5,color=BOXCOLOR,alpha=0.7,
+                 outlier.color="black",outlier.shape=NA,outlier.size=0.2)+
     geom_jitter(color="black",shape=20,size=0.2,
                 height=0,width=0.3)+
-    geom_boxplot(aes(fill=Genotype),
-                 width=0.5,color="black",alpha=0.7,
-                 outlier.color="black",outlier.shape=20,outlier.size=0.2)+
     labs(x=XLABEL,y=YLABEL)+
     facet_wrap(~SNP_ID+Phenotype,
                nrow=floor(sqrt(nrow(SNP_PHENOTYPE))),
@@ -144,7 +145,8 @@ plot_genotype_phenotype_pair<-function(MATRIX_GENOTYPES, #Data frame of genotype
                                        PLOTTITLE="Genotype x Phenotype",
                                        XLABEL="Genotype",
                                        YLABEL="Phenotype",
-                                       MAXNPLOTS=25){ #Maximum number of plots.
+                                       MAXNPLOTS=25, #Maximum number of plots.
+                                       BOXCOLOR="black"){ 
   #This function should be used when phenotypic values are SNP-specific (e.g., phenotypic values are residuals from a linear model involving a specific SNP).
   
   #Load libraries.
@@ -255,11 +257,11 @@ plot_genotype_phenotype_pair<-function(MATRIX_GENOTYPES, #Data frame of genotype
   #Create plot.
   p.genxphen<-DATA_GENOTYPE_PHENOTYPE %>%
     ggplot(aes(x=Genotype,y=PhenotypeValue))+ 
+    geom_boxplot(aes(fill=Genotype),
+                 width=0.5,color=BOXCOLOR,alpha=0.7,
+                 outlier.color="black",outlier.shape=NA,outlier.size=0.2)+
     geom_jitter(color="black",shape=20,size=0.2,
                 height=0,width=0.3)+
-    geom_boxplot(aes(fill=Genotype),
-                 width=0.5,color="black",alpha=0.7,
-                 outlier.color="black",outlier.shape=20,outlier.size=0.2)+
     labs(x=XLABEL,y=YLABEL)+
     facet_wrap(~SNP_ID+Phenotype,
                nrow=floor(sqrt(nrow(DATA_PHENOTYPES))),
