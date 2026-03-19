@@ -26,3 +26,4 @@ INPUTFILE=$(readlink -f $1)
 ##Process.
 
 bcftools query -f '%CHROM\t%POS\n' ${INPUTFILE} | awk '{n[$1]++} END {for(i in n) print i, n[i]}' | sort -nbr -k 2
+echo "TOTAL: $(bcftools view -H ${INPUTFILE} | wc -l)"
