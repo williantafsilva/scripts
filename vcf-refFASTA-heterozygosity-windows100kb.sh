@@ -14,7 +14,7 @@
 ##Input $1: Output location.
 ##Input $2: Reference FASTA file (.fa, .fasta, .fna).
 ##Input $3: VCF file (.vcf or .vcf.gz).
-##Output: VCF file (.vcf.gz) and index file (.tbi).
+##Output: Text file (.txt) with columns: GenomicWindow, Chromosome, Start, End, Sample, nRefHom, nNonRefHom, nHets, HetProp.
 
 ##Usage: 
 ##sbatch \
@@ -96,14 +96,17 @@ samtools faidx --fai-idx ${TMP1} ${INPUTFASTAFILE}
 bedtools makewindows -g ${TMP1} -w 100000 > ${TMP2}
 
 #Calculate statistics (including heterozygosity).
-echo -e "GenomicWindow\tSample\tnRefHom\tnNonRefHom\tnHets\tHetProp" > ${OUTPUTFILE}
+echo -e "GenomicWindow\tChromosome\tStart\tEnd\tSample\tnRefHom\tnNonRefHom\tnHets\tHetProp" > ${OUTPUTFILE}
 cat ${TMP2} | while read L ; do
-	GENOMICWINDOW="$(echo ${L} | cut -f1):$(echo ${L} | cut -f2)-$(echo ${L} | cut -f3)"
+	WINDOWCHR="$(echo ${L} | cut -f1)"
+	WINDOWSTART="$(echo ${L} | cut -f2)"
+	WINDOWEND="$(echo ${L} | cut -f3)"
+	GENOMICWINDOW="${WINDOWCHR}:${WINDOWSTART}-${WINDOWEND}"
 	bcftools stats --samples - --regions ${GENOMICWINDOW} ${VCF} > ${TMP3}
 	grep "^PSC" ${TMP3} | \
 	cut -f3-6 | \
-	awk -v OFS='\t' -v W="${GENOMICWINDOW}" '{ 
-		if ($2 + $3 + $4 != 0) print W, $0, $4 / ( $2 + $3 + $4 ); else print W, $0, "NaN" 
+	awk -v OFS='\t' -v W="${GENOMICWINDOW}" -v WCHR="${WINDOWCHR}" -v WSTART="${WINDOWSTART}" -v WEND="${WINDOWEND}" '{ 
+		if ($2 + $3 + $4 != 0) print W, WCHR, WSTART, WEND, $0, $4 / ( $2 + $3 + $4 ); else print W, WCHR, WSTART, WEND, $0, "NaN" 
 	}' >> ${OUTPUTFILE}
 done
 
