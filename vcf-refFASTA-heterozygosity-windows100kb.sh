@@ -102,7 +102,7 @@ cat ${TMP2} | while read L ; do
 	WINDOWSTART="$(echo ${L} | cut -f2)"
 	WINDOWEND="$(echo ${L} | cut -f3)"
 	GENOMICWINDOW="${WINDOWCHR}:${WINDOWSTART}-${WINDOWEND}"
-	bcftools stats --samples - --regions ${GENOMICWINDOW} ${VCF} > ${TMP3}
+	bcftools stats --samples - --regions ${GENOMICWINDOW} ${INPUTVCFFILE} > ${TMP3}
 	grep "^PSC" ${TMP3} | \
 	cut -f3-6 | \
 	awk -v OFS='\t' -v W="${GENOMICWINDOW}" -v WCHR="${WINDOWCHR}" -v WSTART="${WINDOWSTART}" -v WEND="${WINDOWEND}" '{ 
