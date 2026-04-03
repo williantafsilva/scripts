@@ -87,6 +87,9 @@ TMPFILEPREFIX=$(echo "${OUTPUTLOCATION}/${TMPFILEPREFIX}")
 #Count chromosomes.
 CHRSET=$(bcftools index -s ${INPUTFILE} | cut -f 1 | wc -l)
 
+#Count samples.
+NSAMPLES=$(bcftools query -l ${INPUTFILE} | wc -l)
+
 #Convert VCF to PLINK format.
 plink --vcf ${INPUTFILE} --chr-set ${CHRSET} --allow-extra-chr --make-bed --out ${TMPFILEPREFIX}
 
@@ -95,13 +98,14 @@ plink --bfile ${TMPFILEPREFIX} --chr-set ${CHRSET} --allow-extra-chr --indep-pai
 plink --bfile ${TMPFILEPREFIX} --chr-set ${CHRSET} --allow-extra-chr --extract "${TMPFILEPREFIX}_pruned.prune.in" --make-bed --out "${TMPFILEPREFIX}_filtered"
 
 #Perform PCA.
-plink --bfile "${TMPFILEPREFIX}_filtered" --chr-set ${CHRSET} --allow-extra-chr --pca 20 --out "${OUTPUTFILEPREFIX}"
+plink --bfile "${TMPFILEPREFIX}_filtered" --chr-set ${CHRSET} --allow-extra-chr --pca ${NSAMPLES} --out "${OUTPUTFILEPREFIX}"
 
 #Delete temporary files.
 rm -f $(find ${TMPFILEPREFIX}*)
 
 #Format main output file.
-echo "SAMPLE $(printf '%s ' PC{1..20})" | tr ' ' '\t' > ${OUTPUTFILE}
+#echo "SAMPLE $(printf '%s ' PC{1..20})" | tr ' ' '\t' > ${OUTPUTFILE}
+echo "SAMPLE $(printf 'PC%s ' $(seq 1 ${NSAMPLES}))" | tr ' ' '\t' > ${OUTPUTFILE}
 cat "${OUTPUTFILEPREFIX}.eigenvec" | cut -d' ' -f2- | tr ' ' '\t' >> ${OUTPUTFILE}
 
 ############################################################################
