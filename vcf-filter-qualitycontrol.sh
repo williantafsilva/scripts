@@ -89,7 +89,7 @@ OUTPUTFILE2=$(echo "${OUTPUTLOCATION}/${OUTPUTFILE2NAME}")
 
 bcftools filter --include 'QUAL>=30 && INFO/DP>=10' --output-type u ${INPUTFILE}  | \
 bcftools filter --set-GTs . --exclude 'FMT/DP<10 || FMT/GQ<20' --output-type u | \
-bcftools view -f PASS --output-type z -output ${OUTPUTFILE1}
+bcftools view --apply-filters PASS --output-type z --output ${OUTPUTFILE1}
 
 #Index VCF file.
 bcftools index -t ${OUTPUTFILE1}
