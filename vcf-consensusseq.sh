@@ -64,6 +64,7 @@ Job ID (\$SLURM_JOB_ID): ${SLURM_JOB_ID}"
 
 module load bioinfo-tools
 module load bcftools
+module load samtools
 
 ############################################################################
 ##INPUT:
