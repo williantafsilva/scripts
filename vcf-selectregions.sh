@@ -82,10 +82,14 @@ OUTPUTFILE2NAME=$(echo "${OUTPUTFILE1NAME}.tbi")
 OUTPUTFILE1=$(echo "${OUTPUTLOCATION}/${OUTPUTFILE1NAME}") 
 OUTPUTFILE2=$(echo "${OUTPUTLOCATION}/${OUTPUTFILE2NAME}") 
 
+#Temporary directory.
+TMPDIR=$(echo "${OUTPUTLOCATION}/tmp-job${JOBID}")
+
 ############################################################################
 ##ACTIONS:
 
-bcftools view --regions ${INPUTREGIONS} ${INPUTFILE} | bcftools sort --temp-dir "${PATHTOPROJTMP}/" --write-index=tbi --output-type z --output ${OUTPUTFILE1}
+mkdir -p ${TMPDIR}
+bcftools view --regions ${INPUTREGIONS} ${INPUTFILE} | bcftools sort --temp-dir "${TMPDIR}/" --write-index=tbi --output-type z --output ${OUTPUTFILE1}
 
 ############################################################################
 ##SAVE CONTROL FILES:
