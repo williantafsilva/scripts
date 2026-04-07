@@ -87,9 +87,12 @@ OUTPUTFILE2=$(echo "${OUTPUTLOCATION}/${OUTPUTFILE2NAME}")
 #FMT/DP=Sample-specific read depth at this position.
 #FMT/GQ=Sample-specific genotype quality at this position, encoded as a phred quality.
 
-bcftools filter --include 'QUAL>=30 && INFO/DP>=10' ${INPUTFILE} -Ou | \
-bcftools filter --set-GTs . --exclude 'FMT/DP<10 || FMT/GQ<20' -Ou | \
-bcftools view -f PASS --output-type z --write-index=tbi -output ${OUTPUTFILE1}
+bcftools filter --include 'QUAL>=30 && INFO/DP>=10' --output-type u ${INPUTFILE}  | \
+bcftools filter --set-GTs . --exclude 'FMT/DP<10 || FMT/GQ<20' --output-type u | \
+bcftools view -f PASS --output-type z -output ${OUTPUTFILE1}
+
+#Index VCF file.
+bcftools index -t ${OUTPUTFILE1}
 
 ############################################################################
 ##SAVE CONTROL FILES:
