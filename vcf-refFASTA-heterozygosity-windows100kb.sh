@@ -94,6 +94,7 @@ samtools faidx --fai-idx ${TMP1} ${INPUTFASTAFILE}
 
 #Create non-overlapping windows.
 bedtools makewindows -g ${TMP1} -w 100000 > ${TMP2}
+#bedtools makewindows -g ${TMP1} -w 100000 -s 100000> ${TMP2}
 
 #Calculate statistics (including heterozygosity).
 echo -e "GenomicWindow\tChromosome\tStart\tEnd\tSample\tnRefHom\tnNonRefHom\tnHets\tHetProp" > ${OUTPUTFILE}
