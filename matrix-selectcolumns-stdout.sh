@@ -10,7 +10,7 @@
 ##Select columns of a matrix in a specific order.
 
 ##Input $1: Input tab-separated matrix file.
-##Input $2: Input file with list of column names.
+##Input $2: Input file with list of column names, or comma-separated list of columns names.
 ##Output: Print matrix subset.
 
 ##Usage: 
@@ -26,16 +26,37 @@ LIST_COLS=$2
 
 ##Process.
 
-COLVECTOR=""
-while read COLNAME ; do
-  COLNUMBER=$(head -n1 ${INPUTFILE} | sed -n "s/\(${COLNAME}\(\t\|\$\)\).*/\1/p" | awk '{print NF}' | sort -nu)
-  if [[ ! -z "${COLNUMBER}" ]] ; then
-    COLVECTOR=$(echo "${COLVECTOR},${COLNUMBER}" | sed 's/^,//')
-  fi
-done < ${LIST_COLS}
+if [[ -f "${LIST_COLS}" ]] ; then
 
-awk -v OFS='\t' -v "COLVECTOR=${COLVECTOR}" '
-    BEGIN {split(COLVECTOR, cols, ",")} 
-    {for (i in cols) printf("%s\t", $cols[i]); 
-     print ""
-}' ${INPUTFILE} | sed 's/\t$//g'
+  COLVECTOR=""
+  while read COLNAME ; do
+    COLNUMBER=$(head -n1 ${INPUTFILE} | sed -n "s/\(${COLNAME}\(\t\|\$\)\).*/\1/p" | awk '{print NF}' | sort -nu)
+    if [[ ! -z "${COLNUMBER}" ]] ; then
+      COLVECTOR=$(echo "${COLVECTOR},${COLNUMBER}" | sed 's/^,//')
+    fi
+  done < ${LIST_COLS}
+
+  awk -v OFS='\t' -v "COLVECTOR=${COLVECTOR}" '
+      BEGIN {split(COLVECTOR, cols, ",")} 
+      {for (i in cols) printf("%s\t", $cols[i]); 
+       print ""
+  }' ${INPUTFILE} | sed 's/\t$//g'
+
+else
+
+  COLVECTOR=""
+  for COLNAME in $(echo ${LIST_COLS} | tr "," " ") ; do
+    COLNUMBER=$(head -n1 ${INPUTFILE} | sed -n "s/\(${COLNAME}\(\t\|\$\)\).*/\1/p" | awk '{print NF}' | sort -nu)
+    if [[ ! -z "${COLNUMBER}" ]] ; then
+      COLVECTOR=$(echo "${COLVECTOR},${COLNUMBER}" | sed 's/^,//')
+    fi
+  done
+
+  awk -v OFS='\t' -v "COLVECTOR=${COLVECTOR}" '
+      BEGIN {split(COLVECTOR, cols, ",")} 
+      {for (i in cols) printf("%s\t", $cols[i]); 
+       print ""
+  }' ${INPUTFILE} | sed 's/\t$//g'
+
+fi
+
