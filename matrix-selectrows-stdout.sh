@@ -10,7 +10,7 @@
 ##Select rows of a matrix in a specific order.
 
 ##Input $1: Input tab-separated matrix file.
-##Input $2: Input file with list of row names.
+##Input $2: Input file with list of row names, or comma-separated list of row names.
 ##Output: Print matrix subset.
 
 ##Usage: 
@@ -26,7 +26,16 @@ LIST_ROWS=$2
 
 ##Process.
 
-cat ${LIST_ROWS} | while read ROWNAME ; do
-  grep --color=never -P "^${ROWNAME}\t" ${INPUTFILE}
-done
+if [[ -f "${LIST_COLS}" ]] ; then
 
+  cat ${LIST_ROWS} | while read ROWNAME ; do
+    grep --color=never -P "^${ROWNAME}\t" ${INPUTFILE}
+  done
+
+else
+
+  for ROWNAME in $(echo ${LIST_ROWS} | tr "," " ") ; do
+    grep --color=never -P "^${ROWNAME}\t" ${INPUTFILE}
+  done
+
+fi
