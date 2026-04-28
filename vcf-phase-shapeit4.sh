@@ -99,7 +99,9 @@ bcftools index -s ${INPUTFILE} | cut -f 1 | while read C ; do
 		OUTPUTFILEXNAME=$(echo "${C}.bcf") 
 		OUTPUTFILEX=$(echo "${TMPDIR}/${OUTPUTFILEXNAME}") 
 		shapeit4 --input ${INPUTFILE} --region ${C} --output ${OUTPUTFILEX} --thread 10
-		echo "${OUTPUTFILEX}" >> ${FILELIST}
+		if [[ -s "${OUTPUTFILEX}" ]]; then
+			echo "${OUTPUTFILEX}" >> ${FILELIST}
+		fi
 	fi	
 done
 sleep 5s
