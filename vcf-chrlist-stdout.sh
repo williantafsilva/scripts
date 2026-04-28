@@ -26,3 +26,4 @@ INPUTFILE=$(readlink -f $1)
 ##Process.
 
 bcftools index -s ${INPUTFILE} | cut -f 1
+#bcftools query -f '%CHROM\n' ${INPUTFILE} | sort -u
