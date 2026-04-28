@@ -96,7 +96,9 @@ bcftools index -s ${INPUTFILE} | cut -f 1 | while read C ; do
 	OUTPUTFILEXNAME=$(echo "${C}.bcf") 
 	OUTPUTFILEX=$(echo "${TMPDIR}/${OUTPUTFILEXNAME}") 
 	phase_common --input ${INPUTFILE} --region ${C} --filter-snp --haploids ${HAPLOIDLIST} --output-format bcf --output ${OUTPUTFILEX} --thread 10
-	echo "${OUTPUTFILEX}" >> ${FILELIST}
+	if [[ -s "${OUTPUTFILEX}" ]]; then
+		echo "${OUTPUTFILEX}" >> ${FILELIST}
+	fi
 done
 sleep 5s
 
