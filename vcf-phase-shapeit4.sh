@@ -9,7 +9,7 @@
 ##SCRIPT DESCRIPTION:
 
 ##Description:
-##Phase VCF file (.vcf or .vcf.gz) using SHAPEIT5.
+##Phase VCF file (.vcf or .vcf.gz) using SHAPEIT4.
 
 ##Input $1: Output location.
 ##Input $2: VCF file (.vcf or .vcf.gz).
@@ -26,7 +26,7 @@
 ##    -t 05-00:00:00 \
 ##    --mail-type=ALL \
 ##    --mail-user=${MYEMAIL} \
-##    -J vcf-phase-shapeit5-${<INPUTFILE>##*/} \
+##    -J vcf-phase-shapeit4-${<INPUTFILE>##*/} \
 ##    vcf-phase-shapeit4.sh <OUTPUT LOCATION> <INPUT VCF FILE> <HAPLOID CHR LIST FILE>
 
 ############################################################################
