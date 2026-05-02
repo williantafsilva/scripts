@@ -13,12 +13,11 @@
 
 ##Input $1: Output location.
 ##Input $2: VCF file (.vcf.gz).
-##Input $3: Tab-separated phenotype matrix (.txt; WITH header and row names), with samples as rows and phenotypes as columns.
-##Input $4: Tab-separated covariate matrix (.txt; WITH header and row names), with samples as rows and covariates as columns.
-##Input $5: Tab-separated relatedness matrix (.sXX.txt; WITH header and row names).
-##Input $6: Comma-separated list of samples.
-##Input $7: Comma-separated list of phenotype names.
-##Input $8: Comma-separated list of covariate names.
+##Input $3: Tab-separated phenotype/covariate matrix (.txt; WITH header and row names), with samples as rows and traits/covariates as columns.
+##Input $4: Tab-separated relatedness matrix (.sXX.txt; WITH header and row names).
+##Input $5: Comma-separated list of samples.
+##Input $6: Comma-separated list of phenotype names.
+##Input $7: Comma-separated list of covariate names.
 ##Output: GWAS output file (.assoc.txt) and log file (.log.txt).
 
 ##Usage: 
@@ -75,11 +74,10 @@ module load GEMMA
 OUTPUTLOCATION=$(readlink -f $1)
 INPUTVCFFILE=$(readlink -f $2)
 INPUTPHENOTYPEFILE=$(readlink -f $3)
-INPUTCOVARIATEFILE=$(readlink -f $4)
-INPUTRELATEDNESSFILE=$(readlink -f $5)
-LIST_SAMPLES=$6
-LIST_TRAITS=$7
-LIST_COVARIATES=$8
+INPUTRELATEDNESSFILE=$(readlink -f $4)
+LIST_SAMPLES=$5
+LIST_TRAITS=$6
+LIST_COVARIATES=$7
 
 ############################################################################
 ##OUTPUT:
@@ -168,7 +166,7 @@ echo "##################################################"
 echo "Select phenotypes and create matrix."
 echo ${LIST_TRAITS} | tr ',' '\n' | while read TRAIT ; do
 	if [[ $(grep -P "^${TRAIT}\t" ${TMP2} | wc -l) -gt 0 ]] ; then
-   		grep -P "^${TRAIT}\t" ${TMP2} >> ${TMP3}
+   	grep -P "^${TRAIT}\t" ${TMP2} >> ${TMP3}
 		echo "${TRAIT}" >> ${OUTPUTFILE3}
 	fi 
 done
@@ -197,7 +195,7 @@ echo "##################################################"
 echo "Select covariates and create matrix."
 echo ${LIST_COVARIATES} | tr ',' '\n' | while read COVARIATE ; do
 	if [[ $(grep -P "^${COVARIATE}\t" ${TMP2} | wc -l) -gt 0 ]] ; then
-   		grep -P "^${COVARIATE}\t" ${TMP2} >> ${TMP4}
+   	grep -P "^${COVARIATE}\t" ${TMP2} >> ${TMP4}
 		echo "${COVARIATE}" >> ${OUTPUTFILE4}
 	fi 
 done
@@ -328,7 +326,6 @@ Job ID: ${JOBID}
 Script: ${PATHTOMYSUBMITTEDSCRIPTS}/job${JOBID}-date${RUNDATE}-${SCRIPTNAME}
 Input file: ${INPUTVCFFILE}
 Input file: ${INPUTPHENOTYPEFILE}
-Input file: ${INPUTCOVARIATEFILE}
 Input file: ${INPUTRELATEDNESSFILE}
 Input sample list: ${LIST_SAMPLES}
 Input trait list: ${LIST_TRAITS}
