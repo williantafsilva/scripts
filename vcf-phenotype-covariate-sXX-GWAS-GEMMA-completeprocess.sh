@@ -109,6 +109,12 @@ TMP5="${OUTPUTDIR}/tmp5-relatedness-job${JOBID}.txt"
 TMP6="${OUTPUTDIR}/tmp6-relatedness-job${JOBID}.txt"
 TMP7="${OUTPUTDIR}/tmp7-relatedness-job${JOBID}.txt"
 TMP_PLINKFILEPREFIX="${OUTPUTDIR}/${INPUTFILEPREFIX}.gemma_plinkformat-job${JOBID}"
+TMP8="${OUTPUTDIR}/tmp8-PvalueFDR-job${JOBID}.txt"
+TMP9="${OUTPUTDIR}/tmp9-PvalueFDR-job${JOBID}.txt"
+TMPDIR1="${OUTPUTDIR}/tmpdir1-PvalueFDR-job${JOBID}"
+TMPDIR2="${OUTPUTDIR}/tmpdir2-PvalueFDR-job${JOBID}"
+mkdir -p ${TMPDIR1}
+mkdir -p ${TMPDIR2}
 
 ############################################################################
 ##ACTIONS:
@@ -298,13 +304,49 @@ seq 1 $(cat ${OUTPUTFILE3} | wc -l) | while read PHENOTYPEi ; do
 		-outdir ${OUTPUTDIR} \
 		-o ${OUTPUTFILEPREFIX}
 
-	##Check for errors.
-	if [[ ! -s "${OUTPUTDIR}/${OUTPUTFILEPREFIX}.assoc.txt" ]] ; then
-		echo -e "ERROR:\t${OUTPUTDIR}/${OUTPUTFILEPREFIX}.assoc.txt"
-		echo -e "${OUTPUTDIR}/${OUTPUTFILEPREFIX}.assoc.txt" >> ${ERRORFILE}
-		echo -e "${OUTPUTDIR}/${OUTPUTFILEPREFIX}.assoc.txt\tERROR" >> ${OUTPUTLIST}
+	##Check for errors and, if no errors in output file, calculate FDR p-value.
+  FILEGWAS=$(readlink -f "${OUTPUTDIR}/${OUTPUTFILEPREFIX}.assoc.txt")
+	if [[ ! -s "${FILEGWAS}" ]] ; then
+
+		echo -e "ERROR:\t${FILEGWAS}"
+		echo -e "${FILEGWAS}" >> ${ERRORFILE}
+		echo -e "${FILEGWAS}\tERROR" >> ${OUTPUTLIST}
+
 	else
-		echo -e "${OUTPUTDIR}/${OUTPUTFILEPREFIX}.assoc.txt\tCLEAR" >> ${OUTPUTLIST}
+
+		echo -e "${FILEGWAS}\tCLEAR" >> ${OUTPUTLIST}
+    ##Calculate FDR p-values.
+    echo "Calculate FDR p-values for phenotype ${PHENOTYPEi}."
+    #Select target column containing raw p-values.
+    #Add original order of input p-values, sort and add column with order of ascending raw p-values.
+    #Calculate BH-FDR p-values.
+    #Sort p-values according to original order.
+    FILEGWAS="${OUTPUTDIR}/${OUTPUTFILEPREFIX}.assoc.txt"
+    NTESTS=$(cat ${FILEGWAS} | tail -n+2 | wc -l)
+    cat ${FILEGWAS} | cut -f14 \
+    | awk -v OFS='\t' 'NR==1 { print $0, "OriginalOrder"; next } { print $0, NR-1 }' \
+    | tail -n+2 \
+    | sort -g -k1,1 --temporary-directory=${TMPDIR1} \
+    | awk -v OFS='\t' '{ print $0, NR }' \
+    | tac | awk -v OFS='\t' -v NTESTS="${NTESTS}" '
+    {
+        q = ($1 * NTESTS) / $3
+        if (NR == 1 || q < prev_q) prev_q = q
+        if (prev_q > 1) prev_q = 1
+        print $0 OFS prev_q
+    }
+    ' \
+    | cut -f2,4 | sort -g -k1,1 --temporary-directory=${TMPDIR2} | sed '1iOriginalOrder\tPvalueFDR' > ${TMP8}
+    #Save data.
+    paste ${FILEGWAS} <(cut -f2 ${TMP8}) > ${TMP9}
+    mv ${TMP9} ${FILEGWAS}
+    #Get list of significant hits.
+    TRAITNAME=$(awk -v PHENOTYPEINDEX="${PHENOTYPEi}" 'NR==PHENOTYPEINDEX' ${OUTPUTFILE3})
+    OUTPUT_SIGNIFICANT="${OUTPUTDIR}/significantFDRle02-${TRAITNAME}.gemmagwas-job${JOBID}.txt"
+    echo -e "Phenotype\tChromosome\tPosition\tBeta\tSE\tPvalueLRT\tPvalueFDR" > ${OUTPUT_SIGNIFICANT}
+    cat ${FILEGWAS} | tail -n+2 \
+    | awk -v TRAITNAME="${TRAITNAME}" '($16 <= 0.2) {print TRAITNAME"\t"$1"\t"$3"\t"$8"\t"$9"\t"$14"\t"$16}' >> ${OUTPUT_SIGNIFICANT}
+
 	fi
 
 done
@@ -312,7 +354,7 @@ done
 ##Remove temporary files.
 echo "##################################################"
 echo "Delete temporary files."
-rm -f ${TMP1} ${TMP2} ${TMP3} ${TMP4} ${TMP5} ${TMP6} ${TMP7} ${TMP_PLINKFILEPREFIX}*
+rm -rf ${TMP1} ${TMP2} ${TMP3} ${TMP4} ${TMP5} ${TMP6} ${TMP7} ${TMP8} ${TMP9} ${TMP_PLINKFILEPREFIX}* ${TMPDIR1} ${TMPDIR2}
 
 ############################################################################
 ##SAVE CONTROL FILES:
@@ -331,13 +373,6 @@ Input sample list: ${LIST_SAMPLES}
 Input trait list: ${LIST_TRAITS}
 Input covariate list: ${LIST_COVARIATES}
 Output directory: ${OUTPUTDIR}
-Output file: ${OUTPUTFILE1}
-Output file: ${OUTPUTFILE2}
-Output file: ${OUTPUTFILE3}
-Output file: ${OUTPUTFILE4}
-Output file: ${OUTPUTFILE5}
-Output file: ${OUTPUTFILE6}
-Output file: ${OUTPUTFILE7}
 $(readlink -f $(find ${OUTPUTDIR}/*-job${JOBID}* -maxdepth 1) | sed 's/^/Output file: /g')
 " >> $(echo "${OUTPUTLOCATION}/README.txt") 
 
