@@ -122,11 +122,11 @@ echo "Remove non-chromosomal contigs."
 CHRSET_GAL7B="$(seq 1 39 | tr '\n' ',')$(printf '%s,' Chr{1..39})$(printf '%s,' chr{1..39})W,Z,ChrW,ChrZ,chrW,chrZ"
 bcftools view \
   --samples ${LIST_SAMPLES} \
+  --regions ${CHRSET_GAL7B} \
   --min-ac=1 \
   --output-type u \
   ${INPUTVCFFILE} | \
   bcftools view \
-  --regions ${CHRSET_GAL7B} \
   --include 'MAF>0.05 & F_MISSING<0.05' \
   --output-type z \
   --write-index=tbi \
