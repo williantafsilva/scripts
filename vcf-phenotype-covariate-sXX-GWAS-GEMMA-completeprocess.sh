@@ -174,7 +174,7 @@ done
 ##Create phenotype matrix.
 echo "##################################################"
 echo "Create phenotype matrix."
-cut -f2- ${TMP_TARGETPHENOTYPES} | \
+cut -f2- ${TMP3} | \
 awk -F'\t' '{
       for (i=1; i<=NF; i++) {
         a[NR,i] = $i;
