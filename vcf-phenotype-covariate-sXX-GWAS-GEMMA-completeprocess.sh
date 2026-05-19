@@ -290,6 +290,7 @@ plink --vcf ${OUTPUTFILE1} --allow-extra-chr --chr-set ${CHRSETN_GAL7B} --make-b
 echo "##################################################"
 echo "Run GEMMA GWAS."
 seq 1 $(cat ${OUTPUTFILE3} | wc -l) | while read PHENOTYPEi ; do
+  echo "##################################################"
 	echo "Running GEMMA on phenotype ${PHENOTYPEi}."
 	
 	##Run association analysis.
@@ -302,6 +303,7 @@ seq 1 $(cat ${OUTPUTFILE3} | wc -l) | while read PHENOTYPEi ; do
 		-k ${OUTPUTFILE7} \
 		-lmm 4 \
 		-outdir ${OUTPUTDIR} \
+    -check \
 		-o ${OUTPUTFILEPREFIX}
 
 	##Check for errors and, if no errors in output file, calculate FDR p-value.
