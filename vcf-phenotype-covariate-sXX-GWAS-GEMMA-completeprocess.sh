@@ -303,7 +303,6 @@ seq 1 $(cat ${OUTPUTFILE3} | wc -l) | while read PHENOTYPEi ; do
 		-k ${OUTPUTFILE7} \
 		-lmm 4 \
 		-outdir ${OUTPUTDIR} \
-    -no-check \
 		-o ${OUTPUTFILEPREFIX}
 
     #Enable checks: -check
