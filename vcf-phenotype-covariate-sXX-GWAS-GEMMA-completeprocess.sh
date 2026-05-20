@@ -303,8 +303,11 @@ seq 1 $(cat ${OUTPUTFILE3} | wc -l) | while read PHENOTYPEi ; do
 		-k ${OUTPUTFILE7} \
 		-lmm 4 \
 		-outdir ${OUTPUTDIR} \
-    -check \
+    -no-check \
 		-o ${OUTPUTFILEPREFIX}
+
+    #Enable checks: -check
+    #Disable floating point tests: -no-check 
 
 	##Check for errors and, if no errors in output file, calculate FDR p-value.
   FILEGWAS=$(readlink -f "${OUTPUTDIR}/${OUTPUTFILEPREFIX}.assoc.txt")
