@@ -125,7 +125,7 @@ for K in $(tr ',' '\n' <<< "${INPUTLIST_K}"); do
 	OUTPUTFILEPREFIX="${OUTPUTLOCATION}/${INPUTFILEPREFIX}.admixtureK${K}-job${JOBID}"
 
 	#Run ADMIXTURE.
-	admixture -B100 --cv=5 "${TMPFILEPREFIX}_filtered.bed" ${K} -j10 | tee "${OUTPUTFILEPREFIX}.out"
+	admixture -B100 --cv=5 "${TMPFILEPREFIX}_filtered.bed" ${K} -j50 | tee "${OUTPUTFILEPREFIX}.out"
 
 	#Ancestral population names.
 	POPNAMES=""
