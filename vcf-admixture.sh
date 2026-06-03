@@ -14,7 +14,7 @@
 ##Input $1: Output location.
 ##Input $2: Indexed VCF file (.vcf.gz).
 ##Input $3: Comma-separated list of K values (possible numbers of ancestral populations; use paste -sd,).
-##Input $4: Comma-separated list of samples to be included in the analysis.
+##Input $4: Comma-separated list of samples to be included in the analysis. If not provided, all samples will be used.
 ##Output: Admixture files (*.Q, *.P, *.Q_se).
 
 ##Usage: 
