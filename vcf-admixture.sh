@@ -28,7 +28,7 @@
 ##    --mail-type=ALL \
 ##    --mail-user=${MYEMAIL} \
 ##    -J vcf-admixture-${<INPUTFILE>##*/} \
-##    vcf-admixture.sh <OUTPUT LOCATION> <INPUT VCF FILE> <K>
+##    vcf-admixture.sh <OUTPUT LOCATION> <INPUT VCF FILE> <K> <SAMPLES>
 
 ############################################################################
 ##SCRIPT NAME:
@@ -126,12 +126,6 @@ for K in $(tr ',' '\n' <<< "${INPUTLIST_K}"); do
 
 	#Run ADMIXTURE.
 	admixture -B100 --cv=5 "${TMPFILEPREFIX}_filtered.bed" ${K} -j10 | tee "${OUTPUTFILEPREFIX}.out"
-	
-	#Rename output files.
-	#mv "${TMPFILEPREFIX}_filtered.${K}.P" "${OUTPUTFILEPREFIX}.P"
-	#mv "${TMPFILEPREFIX}_filtered.${K}.Q" "${OUTPUTFILEPREFIX}.Q"
-	#mv "${TMPFILEPREFIX}_filtered.${K}.Q_se" "${OUTPUTFILEPREFIX}.Q_se"
-	#mv "${TMPFILEPREFIX}_filtered.${K}.Q_bias" "${OUTPUTFILEPREFIX}.Q_bias"
 
 	#Ancestral population names.
 	POPNAMES=""
@@ -145,16 +139,16 @@ for K in $(tr ',' '\n' <<< "${INPUTLIST_K}"); do
 	#Allele frequencies of the inferred ancestral populations.
 	paste <(bcftools view -H "${TMPFILEPREFIX}.vcf.gz" | cut -f1 | sed '1iChromosome') \
 	<(bcftools view -H "${TMPFILEPREFIX}.vcf.gz" | cut -f2 | sed '1iPosition') \
-	<(cat "${TMPFILEPREFIX}_filtered.${K}.P" | sed "1i${POPNAMES}") > "${OUTPUTFILEPREFIX}.P"
+	<(cat "${TMPFILEPREFIX}_filtered.${K}.P" | tr ' ' '\t' | sed "1i${POPNAMES}") > "${OUTPUTFILEPREFIX}.P"
 	#Point-estimate admixture proportions (ancestry fractions).
 	paste <(bcftools query -l "${TMPFILEPREFIX}.vcf.gz" | sed '1iSample') \
-	<(cat "${TMPFILEPREFIX}_filtered.${K}.Q" | sed "1i${POPNAMES}") > "${OUTPUTFILEPREFIX}.Q"
+	<(cat "${TMPFILEPREFIX}_filtered.${K}.Q" | tr ' ' '\t' | sed "1i${POPNAMES}") > "${OUTPUTFILEPREFIX}.Q"
 	#Bootstrap standard errors (se) for each of the ancestry proportion estimates.
 	paste <(bcftools query -l "${TMPFILEPREFIX}.vcf.gz" | sed '1iSample') \
-	<(cat "${TMPFILEPREFIX}_filtered.${K}.Q_se" | sed "1i${POPNAMES}") > "${OUTPUTFILEPREFIX}.Q_se"
+	<(cat "${TMPFILEPREFIX}_filtered.${K}.Q_se" | tr ' ' '\t' | sed "1i${POPNAMES}") > "${OUTPUTFILEPREFIX}.Q_se"
 	#Estimated statistical bias of the individual ancestry proportions (the Q values) for each of the sampled individuals.
 	paste <(bcftools query -l "${TMPFILEPREFIX}.vcf.gz" | sed '1iSample') \
-	<(cat "${TMPFILEPREFIX}_filtered.${K}.Q_bias" | sed "1i${POPNAMES}") > "${OUTPUTFILEPREFIX}.Q_bias"
+	<(cat "${TMPFILEPREFIX}_filtered.${K}.Q_bias" | tr ' ' '\t' | sed "1i${POPNAMES}") > "${OUTPUTFILEPREFIX}.Q_bias"
 
 done
 
