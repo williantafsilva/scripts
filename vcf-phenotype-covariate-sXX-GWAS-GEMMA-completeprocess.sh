@@ -320,7 +320,7 @@ seq 1 $(cat ${OUTPUTFILE3} | wc -l) | while read PHENOTYPEi ; do
 
 		echo -e "${FILEGWAS}\tCLEAR" >> ${OUTPUTLIST}
     ##Calculate FDR p-values.
-    echo "Calculate FDR p-values for phenotype ${PHENOTYPEi}."
+    echo "Calculate FDR p-values for trait ${PHENOTYPEi}."
     #Select target column containing raw p-values.
     #Add original order of input p-values, sort and add column with order of ascending raw p-values.
     #Calculate BH-FDR p-values.
@@ -346,10 +346,10 @@ seq 1 $(cat ${OUTPUTFILE3} | wc -l) | while read PHENOTYPEi ; do
     mv ${TMP9} ${FILEGWAS}
     #Get list of significant hits.
     TRAITNAME=$(awk -v PHENOTYPEINDEX="${PHENOTYPEi}" 'NR==PHENOTYPEINDEX' ${OUTPUTFILE3})
-    OUTPUT_SIGNIFICANT="${OUTPUTDIR}/significantFDRle02-${TRAITNAME}.gemmagwas-job${JOBID}.txt"
-    echo -e "Phenotype\tChromosome\tPosition\tBeta\tSE\tPvalueLRT\tPvalueFDR" > ${OUTPUT_SIGNIFICANT}
+    OUTPUT_SIGNIFICANT="${OUTPUTDIR}/significantFDRle005-${TRAITNAME}.gemmagwas-job${JOBID}.txt"
+    echo -e "Trait\tChromosome\tPosition\tBeta\tSE\tPvalueLRT\tPvalueFDR" > ${OUTPUT_SIGNIFICANT}
     cat ${FILEGWAS} | tail -n+2 \
-    | awk -v TRAITNAME="${TRAITNAME}" '($16 <= 0.2) {print TRAITNAME"\t"$1"\t"$3"\t"$8"\t"$9"\t"$14"\t"$16}' >> ${OUTPUT_SIGNIFICANT}
+    | awk -v TRAITNAME="${TRAITNAME}" '($16 <= 0.05) {print TRAITNAME"\t"$1"\t"$3"\t"$8"\t"$9"\t"$14"\t"$16}' >> ${OUTPUT_SIGNIFICANT}
 
 	fi
 
