@@ -27,7 +27,7 @@ INPUTFILE=$(readlink -f $2)
 ##Process.
 
 if [[ ${DELIMITER} == comma ]] ; then
-    awk -F',' '{
+    awk -F',' -v OFS=',' '{
       for (i=1; i<=NF; i++) {
         a[NR,i] = $i;
       }
@@ -56,7 +56,7 @@ if [[ ${DELIMITER} == comma ]] ; then
 fi
 
 if [[ ${DELIMITER} == tab ]] ; then
-    awk -F'\t' '{
+    awk -F'\t' -v OFS='\t' '{
       for (i=1; i<=NF; i++) {
         a[NR,i] = $i;
       }
@@ -73,7 +73,7 @@ if [[ ${DELIMITER} == tab ]] ; then
 fi
 
 if [[ ${DELIMITER} == space ]] ; then
-    awk -F' ' '{
+    awk -F' ' -v OFS=' ' '{
       for (i=1; i<=NF; i++) {
         a[NR,i] = $i;
       }
@@ -90,7 +90,7 @@ if [[ ${DELIMITER} == space ]] ; then
 fi
 
 if [[ ${DELIMITER} == semicolon ]] ; then
-    awk -F';' '{
+    awk -F';' -v OFS=';' '{
       for (i=1; i<=NF; i++) {
         a[NR,i] = $i;
       }
