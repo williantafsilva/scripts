@@ -36,12 +36,6 @@ if [[ -f "${LIST_COLS}" ]] ; then
     fi
   done < ${LIST_COLS}
 
-  awk -v OFS='\t' -v "COLVECTOR=${COLVECTOR}" '
-      BEGIN {split(COLVECTOR, cols, ",")} 
-      {for (i in cols) printf("%s\t", $cols[i]); 
-       print ""
-  }' ${INPUTFILE} | sed 's/\t$//g'
-
 else
 
   COLVECTOR=""
@@ -52,11 +46,12 @@ else
     fi
   done
 
-  awk -v OFS='\t' -v "COLVECTOR=${COLVECTOR}" '
-      BEGIN {split(COLVECTOR, cols, ",")} 
-      {for (i in cols) printf("%s\t", $cols[i]); 
-       print ""
-  }' ${INPUTFILE} | sed 's/\t$//g'
-
 fi
+
+awk -F'\t' -v OFS='\t' -v "COLVECTOR=${COLVECTOR}" '
+    BEGIN {
+        N = split( COLVECTOR, COLS, ",")
+    }{ for (i = 1; i <= N; i++)
+            printf "%s%s", $COLS[i], (i < N ? OFS : ORS)
+    }' "${INPUTFILE}" | sed 's/\t$//g'
 
