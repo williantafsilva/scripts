@@ -13,6 +13,7 @@ filter_genotypefreq<-function(MATRIX_GENOTYPES, #Data frame of genotypes with SN
   #Load libraries.
   #library(ggplot2)
   library(tidyverse)
+  library(data.table)
   #library(gtools)
   
   #Transform phased genotypes into unphased genotypes.
