@@ -121,8 +121,11 @@ plot_genotype_phenotype<-function(MATRIX_GENOTYPES, #Data frame of genotypes wit
                       2:ncol(DATA_PHENOTYPES)]))))
     DATA_GENOTYPE_PHENOTYPE<-rbind(DATA_GENOTYPE_PHENOTYPE,TMP)
   }
+  
   #Remove NAs.
-  DATA_GENOTYPE_PHENOTYPE<-DATA_GENOTYPE_PHENOTYPE[!is.na(DATA_GENOTYPE_PHENOTYPE$SNP_ID),]
+  DATA_GENOTYPE_PHENOTYPE<-DATA_GENOTYPE_PHENOTYPE %>%
+    filter(!is.na(SNP_ID)) %>%
+    filter(!is.na(PhenotypeValue))
   
   #Find outliers per SNP, trait and genotype.
   DATA_GENOTYPE_PHENOTYPE<-DATA_GENOTYPE_PHENOTYPE %>%
@@ -348,8 +351,9 @@ plot_genotype_phenotype_lmresiduals<-function(MATRIX_GENOTYPES, #Data frame of g
   }
   
   #Remove NAs.
-  DATA_GENOTYPE_PHENOTYPE<-DATA_GENOTYPE_PHENOTYPE[!is.na(DATA_GENOTYPE_PHENOTYPE$Genotype),]
-  DATA_GENOTYPE_PHENOTYPE<-DATA_GENOTYPE_PHENOTYPE[!is.na(DATA_GENOTYPE_PHENOTYPE$PhenotypeValue),]
+  DATA_GENOTYPE_PHENOTYPE<-DATA_GENOTYPE_PHENOTYPE %>%
+    filter(!is.na(Genotype)) %>%
+    filter(!is.na(PhenotypeValue))
   
   #Find outliers per SNP, trait and genotype.
   DATA_GENOTYPE_PHENOTYPE<-DATA_GENOTYPE_PHENOTYPE %>%
