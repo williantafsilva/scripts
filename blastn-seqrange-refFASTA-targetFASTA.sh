@@ -128,8 +128,8 @@ blastn \
 #Append column names.
 sed -i '1i qseqid\tqlen\tsseqid\tslen\tqstart\tqend\tsstart\tsend\tnident\tpident\tlength\tmismatch\tgaps\tqcovs\tevalue\tbitscore' "${OUTPUTFILE2}"
 
-#Print BLASTN results.
-echo -e "#BLASTN output:\n"
+#Print BLASTN top hits.
+echo -e "#BLASTN output top hits:\n"
 cat "${OUTPUTFILE2}"
 
 #Run BLAST and report alignments of top 10 hits in pairwise format.
@@ -141,6 +141,10 @@ blastn \
     -max_target_seqs 10 \
     -max_hsps 1 \
     -out "${OUTPUTFILE3}"
+
+ #Print BLASTN alignments.
+echo -e "#BLASTN output alignments:\n"
+cat "${OUTPUTFILE3}"
 
 #Select the first hit reported by BLAST.
 FIRSTHIT=$(cat "${OUTPUTFILE2}" | tail -n+2 | head -n1)
