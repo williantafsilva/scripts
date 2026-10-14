@@ -9,14 +9,15 @@
 ##SCRIPT DESCRIPTION:
 
 ##Description:
-##Retrieve sequence from indexed reference FASTA file.
+##BLASTN of a genomic range within a reference FASTA file against a target FASTA file and returns
+##a table with top 10 hits as well as sequence alignments and the sequence of the top hit in FASTA format.
 
 ##Input $1: Output location.
 ##Input $2: Sequence range (chr:position-position).
 ##Input $3: Reference FASTA file (.fa).
 ##Input $4: Target FASTA file (.fa).
 ##Input $5: File tag (to be included in the output file name).
-##Output: FASTA file (.fa).
+##Output: Text files (.txt) and FASTA files (.fa).
 
 ##Usage: 
 ##sbatch \
