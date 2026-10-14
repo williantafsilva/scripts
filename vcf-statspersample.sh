@@ -59,7 +59,8 @@ Job ID (\$SLURM_JOB_ID): ${SLURM_JOB_ID}"
 ##LOAD TOOLS:
 
 module load bioinfo-tools
-module load rtgcore
+##module load rtgcore
+module load rtgcore/3.12.1
 
 ############################################################################
 ##INPUT:
