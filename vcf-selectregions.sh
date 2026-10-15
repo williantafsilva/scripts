@@ -14,6 +14,7 @@
 ##Input $1: Output location.
 ##Input $2: VCF file (.vcf or .vcf.gz).
 ##Input $3: Comma-separated list of regions (e.g., Chr1:23-56,Chr4:45-78,Chr6:123-567)
+##Input $4: Output file tag.
 ##Output: VCF file (.vcf.gz) and index file (.tbi).
 
 ##Usage: 
@@ -27,7 +28,7 @@
 ##    --mail-type=ALL \
 ##    --mail-user=${MYEMAIL} \
 ##    -J vcf-selectregions-${<INPUTFILE>##*/} \
-##    vcf-selectregions.sh <OUTPUT LOCATION> <INPUT VCF FILE> <LIST OF REGIONS>
+##    vcf-selectregions.sh <OUTPUT LOCATION> <INPUT VCF FILE> <LIST OF REGIONS> <OUTPUT FILE TAG>
 
 
 ############################################################################
@@ -69,6 +70,7 @@ module load bcftools
 OUTPUTLOCATION=$(readlink -f $1)
 INPUTFILE=$(readlink -f $2)
 INPUTREGIONS=$3
+FILETAG=$4
 
 INPUTFILELOCATION=${INPUTFILE%/*}
 INPUTFILENAME=${INPUTFILE##*/}
@@ -77,7 +79,7 @@ INPUTFILENAME=${INPUTFILE##*/}
 ##OUTPUT:
 
 OUTPUTFILEPREFIX=$(echo ${INPUTFILENAME} | sed 's/\.vcf.*$//' | sed 's/\.bcf.*$//' | sed 's/-job[0-9].*$//')
-OUTPUTFILE1NAME=$(echo "${OUTPUTFILEPREFIX}.selectregions-job${JOBID}.vcf.gz") 
+OUTPUTFILE1NAME=$(echo "${OUTPUTFILEPREFIX}.selectregions${FILETAG}-job${JOBID}.vcf.gz") 
 OUTPUTFILE2NAME=$(echo "${OUTPUTFILE1NAME}.tbi")
 OUTPUTFILE1=$(echo "${OUTPUTLOCATION}/${OUTPUTFILE1NAME}") 
 OUTPUTFILE2=$(echo "${OUTPUTLOCATION}/${OUTPUTFILE2NAME}") 
